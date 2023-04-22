@@ -1,39 +1,122 @@
 pub mod rusty_maths {
 
+    pub mod traits {
+        pub trait Transpose<ReturnType> {
+            fn transpose(&self) -> ReturnType;
+        }
+
+        pub trait Fill<ReturnType, FillType>
+        where
+            FillType: num::Num,
+        {
+            fn fill(value: FillType) -> ReturnType;
+        }
+
+        pub trait Identity<ReturnType> {
+            fn identity() -> ReturnType;
+        }
+
+        pub trait Array2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
+            fn column(&self, index: usize) -> [ComponentType; ROWS];
+
+            fn columns(&self) -> usize;
+
+            fn components(&self) -> [[ComponentType; COLUMNS]; ROWS];
+
+            fn count(&self) -> usize;
+
+            fn row(&self, index: usize) -> [ComponentType; COLUMNS];
+
+            fn rows(&self) -> usize;
+        }
+    }
+
     pub mod matrix {
 
-        use num::{one, zero, Num, One, Zero};
+        use super::traits::{Array2D, Fill, Identity, Transpose};
+
+        use num::{one, zero, Num, Zero};
         use std::{
             cmp::PartialEq, ops::Add, ops::AddAssign, ops::Div, ops::DivAssign, ops::Index,
-            ops::IndexMut, ops::Mul, ops::MulAssign, ops::Sub, ops::SubAssign,
+            ops::IndexMut, ops::Mul, ops::MulAssign, ops::Sub, ops::SubAssign
         };
 
+        #[derive(Copy, Clone)]
         pub struct Matrix<T, const ROWS: usize, const COLUMNS: usize>
         where
             T: Clone,
         {
-            components: [[T; COLUMNS]; ROWS],
+            pub components: [[T; COLUMNS]; ROWS],
         }
 
         impl<T, const ROWS: usize, const COLUMNS: usize> Matrix<T, ROWS, COLUMNS>
         where
-            T: Zero + One + Clone + Copy,
+            T: Clone + Copy,
         {
             pub fn new(components: [[T; COLUMNS]; ROWS]) -> Self {
                 Matrix::<T, ROWS, COLUMNS> { components }
             }
+        }
 
-            pub fn zeros() -> Self {
-                let components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
-                Matrix::new(components)
+        impl<T, const ROWS: usize, const COLUMNS: usize> Array2D<T, ROWS, COLUMNS> for Matrix<T, ROWS, COLUMNS>
+        where
+            T: Clone + Copy + Num,
+        {
+            fn row(&self, index: usize) -> [T; COLUMNS] {
+                self.components[index]
             }
 
-            pub fn ones() -> Self {
-                let components: [[T; COLUMNS]; ROWS] = [[one::<T>(); COLUMNS]; ROWS];
-                Matrix::new(components)
+            fn column(&self, index: usize) -> [T; ROWS] {
+                let mut output = [zero::<T>(); ROWS];
+
+                for i in 0..ROWS {
+                    output[i] = self.components[i][index];
+                }
+
+                output
             }
 
-            pub fn fill(value: T) -> Self {
+            fn rows(&self) -> usize {
+                ROWS
+            }
+
+            fn columns(&self) -> usize {
+                COLUMNS
+            }
+
+            fn count(&self) -> usize {
+                self.rows() * self.columns()
+            }
+
+            fn components(&self) -> [[T; COLUMNS]; ROWS] {
+                self.components
+            }
+        }
+
+        impl<T, const ROWS: usize, const COLUMNS: usize> Transpose<Matrix<T, COLUMNS, ROWS>>
+            for Matrix<T, ROWS, COLUMNS>
+        where
+            T: Clone + Copy + Num,
+        {
+            fn transpose(&self) -> Matrix<T, COLUMNS, ROWS> {
+                let mut output = Matrix::<T, COLUMNS, ROWS>::zero();
+
+                for y in 0..ROWS {
+                    for x in 0..COLUMNS {
+                        output.components[x][y] = self.components[y][x];
+                    }
+                }
+
+                output
+            }
+        }
+
+        impl<T, const ROWS: usize, const COLUMNS: usize> Fill<Matrix<T, ROWS, COLUMNS>, T>
+            for Matrix<T, ROWS, COLUMNS>
+        where
+            T: Clone + Copy + Num,
+        {
+            fn fill(value: T) -> Self {
                 let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
 
                 for rows in components.iter_mut().take(ROWS) {
@@ -44,8 +127,14 @@ pub mod rusty_maths {
 
                 Matrix::new(components)
             }
+        }
 
-            pub fn unit() -> Self {
+        impl<T, const ROWS: usize, const COLUMNS: usize> Identity<Matrix<T, ROWS, COLUMNS>>
+            for Matrix<T, ROWS, COLUMNS>
+        where
+            T: Clone + Copy + Num,
+        {
+            fn identity() -> Self {
                 let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
 
                 for row in 0..ROWS {
@@ -54,43 +143,23 @@ pub mod rusty_maths {
 
                 Matrix::new(components)
             }
+        }
 
-            pub fn transpose(&self) -> Matrix<T, COLUMNS, ROWS> {
-                let mut output = Matrix::<T, COLUMNS, ROWS>::zeros();
-
-                for y in 0..ROWS {
-                    for x in 0..COLUMNS {
-                        output.components[x][y] = self.components[y][x];
-                    }
-                }
-
-                output
+        impl<T, const ROWS: usize, const COLUMNS: usize> Zero for Matrix<T, ROWS, COLUMNS>
+        where
+            T: Clone + Copy + Num,
+        {
+            fn zero() -> Self {
+                let components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
+                Matrix::new(components)
             }
 
-            pub fn row(&self, index: usize) -> &[T; COLUMNS] {
-                &self.components[index]
+            fn is_zero(&self) -> bool {
+                todo!()
             }
 
-            pub fn column(&self, index: usize) -> [T; ROWS] {
-                let mut output = [zero::<T>(); ROWS];
-
-                for i in 0..ROWS {
-                    output[i] = self.components[i][index];
-                }
-
-                output
-            }
-
-            pub fn rows(&self) -> usize {
-                ROWS
-            }
-
-            pub fn columns(&self) -> usize {
-                COLUMNS
-            }
-
-            pub fn components(&self) -> [[T; COLUMNS]; ROWS] {
-                self.components
+            fn set_zero(&mut self) {
+                *self = Zero::zero();
             }
         }
 
@@ -101,7 +170,7 @@ pub mod rusty_maths {
             type Output = Matrix<T, ROWS, COLUMNS>;
 
             fn add(self, rhs: Self) -> Self::Output {
-                let mut matrix = Matrix::<T, ROWS, COLUMNS>::zeros();
+                let mut matrix = Matrix::<T, ROWS, COLUMNS>::zero();
 
                 for y in 0..ROWS {
                     for x in 0..COLUMNS {
@@ -133,7 +202,7 @@ pub mod rusty_maths {
             type Output = Matrix<T, ROWS, COLUMNS>;
 
             fn sub(self, rhs: Self) -> Self::Output {
-                let mut matrix = Matrix::<T, ROWS, COLUMNS>::zeros();
+                let mut matrix = Matrix::<T, ROWS, COLUMNS>::zero();
 
                 for y in 0..ROWS {
                     for x in 0..COLUMNS {
@@ -158,18 +227,20 @@ pub mod rusty_maths {
             }
         }
 
-        impl<T, const ROWS: usize, const COLUMNS: usize> Mul<Self> for Matrix<T, ROWS, COLUMNS>
+        impl<T, const LHS_ROWS: usize, const LHS_COLUMNS: usize, const RHS_COLUMN: usize> Mul<Matrix<T, LHS_COLUMNS, RHS_COLUMN>> for Matrix<T, LHS_ROWS, LHS_COLUMNS>
         where
-            T: Num + Clone + Copy,
+            T: Num + Clone + Copy + AddAssign,
         {
-            type Output = Matrix<T, ROWS, COLUMNS>;
+            type Output = Matrix::<T, LHS_ROWS, RHS_COLUMN>;
 
-            fn mul(self, rhs: Self) -> Self::Output {
-                let mut matrix = Matrix::<T, ROWS, COLUMNS>::zeros();
+            fn mul(self, rhs: Matrix<T, LHS_COLUMNS, RHS_COLUMN>) -> Matrix::<T, LHS_ROWS, RHS_COLUMN> {
+                let mut matrix = Matrix::<T, LHS_ROWS, RHS_COLUMN>::zero();
 
-                for y in 0..ROWS {
-                    for x in 0..COLUMNS {
-                        matrix.components[y][x] = self.components[y][x] * rhs.components[y][x];
+                for lhs_row in 0..LHS_ROWS {
+                    for rhs_column in 0..RHS_COLUMN {
+                        for lhs_column in 0..LHS_COLUMNS {
+                            matrix[lhs_row][rhs_column] += self[lhs_row][lhs_column] * rhs[lhs_column][rhs_column];
+                        }
                     }
                 }
 
@@ -184,7 +255,7 @@ pub mod rusty_maths {
             type Output = Matrix<T, ROWS, COLUMNS>;
 
             fn mul(self, scalar: T) -> Self::Output {
-                let mut matrix = Matrix::<T, ROWS, COLUMNS>::zeros();
+                let mut matrix = Matrix::<T, ROWS, COLUMNS>::zero();
 
                 for y in 0..ROWS {
                     for x in 0..COLUMNS {
@@ -193,19 +264,6 @@ pub mod rusty_maths {
                 }
 
                 matrix
-            }
-        }
-
-        impl<T, const ROWS: usize, const COLUMNS: usize> MulAssign for Matrix<T, ROWS, COLUMNS>
-        where
-            T: Num + Clone + Copy,
-        {
-            fn mul_assign(&mut self, rhs: Self) {
-                for y in 0..ROWS {
-                    for x in 0..COLUMNS {
-                        self.components[y][x] = self.components[y][x] * rhs.components[y][x];
-                    }
-                }
             }
         }
 
@@ -222,25 +280,6 @@ pub mod rusty_maths {
             }
         }
 
-        impl<T, const ROWS: usize, const COLUMNS: usize> Div for Matrix<T, ROWS, COLUMNS>
-        where
-            T: Num + Clone + Copy,
-        {
-            type Output = Matrix<T, ROWS, COLUMNS>;
-
-            fn div(self, rhs: Self) -> Self::Output {
-                let mut matrix = Matrix::<T, ROWS, COLUMNS>::zeros();
-
-                for y in 0..ROWS {
-                    for x in 0..COLUMNS {
-                        matrix.components[y][x] = self.components[y][x] / rhs.components[y][x];
-                    }
-                }
-
-                matrix
-            }
-        }
-
         impl<T, const ROWS: usize, const COLUMNS: usize> Div<T> for Matrix<T, ROWS, COLUMNS>
         where
             T: Num + Clone + Copy,
@@ -248,7 +287,7 @@ pub mod rusty_maths {
             type Output = Matrix<T, ROWS, COLUMNS>;
 
             fn div(self, scalar: T) -> Self::Output {
-                let mut matrix = Matrix::<T, ROWS, COLUMNS>::zeros();
+                let mut matrix = Matrix::<T, ROWS, COLUMNS>::zero();
 
                 for y in 0..ROWS {
                     for x in 0..COLUMNS {
@@ -257,19 +296,6 @@ pub mod rusty_maths {
                 }
 
                 matrix
-            }
-        }
-
-        impl<T, const ROWS: usize, const COLUMNS: usize> DivAssign for Matrix<T, ROWS, COLUMNS>
-        where
-            T: Num + Clone + Copy,
-        {
-            fn div_assign(&mut self, rhs: Self) {
-                for y in 0..ROWS {
-                    for x in 0..COLUMNS {
-                        self.components[y][x] = self.components[y][x] / rhs.components[y][x];
-                    }
-                }
             }
         }
 
@@ -318,247 +344,226 @@ pub mod rusty_maths {
                         }
                     }
                 }
-
-                return true;
-            }
-        }
-    }
-}
-
-#[cfg(test)]
-mod matrix_tests {
-
-    use crate::rusty_maths::matrix::Matrix;
-
-    #[test]
-    fn index() {
-        let matrix = Matrix::new([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
-
-        for y in 0..matrix.rows() {
-            for x in 0..matrix.columns() {
-                assert_eq!(matrix[y][x], x + (y * matrix.columns()) + 1)
+                true
             }
         }
     }
 
-    #[test]
-    fn init_zero() {
-        let matrix = Matrix::<usize, 3, 3>::zeros();
-        for y in 0..matrix.rows() {
-            for x in 0..matrix.columns() {
-                assert_eq!(matrix[y][x], 0);
+    #[cfg(test)]
+    mod matrix_tests {
+
+        use num::{One, Zero};
+
+        use crate::rusty_maths::{
+            matrix::Matrix,
+            traits::{Fill, Identity, Transpose},
+        };
+
+        use super::traits::Array2D;
+
+        impl<T, const ROWS: usize, const COLUMNS: usize> std::fmt::Debug for Matrix<T, ROWS, COLUMNS>
+        where
+            T: Clone + Copy,
+        {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "")
             }
         }
-    }
 
-    #[test]
-    fn init_one() {
-        let matrix = Matrix::<usize, 3, 3>::ones();
-        for y in 0..matrix.rows() {
-            for x in 0..matrix.columns() {
-                assert_eq!(matrix[y][x], 1);
+        #[test]
+        fn index() {
+            let matrix = Matrix::new([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+
+            for y in 0..matrix.rows() {
+                for x in 0..matrix.columns() {
+                    assert_eq!(matrix[y][x], x + (y * matrix.columns()) + 1)
+                }
             }
         }
-    }
 
-    #[test]
-    fn add() {
-        let lhs = Matrix::<usize, 3, 3>::ones();
-        let rhs = Matrix::<usize, 3, 3>::ones();
-
-        let add_matrix = lhs + rhs;
-
-        for y in 0..add_matrix.rows() {
-            for x in 0..add_matrix.columns() {
-                assert_eq!(add_matrix[y][x], 2);
+        #[test]
+        fn init_zero() {
+            let matrix = Matrix::<usize, 3, 3>::zero();
+            for y in 0..matrix.rows() {
+                for x in 0..matrix.columns() {
+                    assert_eq!(matrix[y][x], 0);
+                }
             }
         }
-    }
 
-    #[test]
-    fn add_assign() {
-        let rhs = Matrix::<usize, 3, 3>::ones();
-        let mut add_assign_matrix = Matrix::<usize, 3, 3>::ones();
+        #[test]
+        fn add() {
+            let lhs = Matrix::<usize, 3, 3>::fill(1);
+            let rhs = Matrix::<usize, 3, 3>::fill(1);
 
-        add_assign_matrix += rhs;
+            let add_matrix = lhs + rhs;
 
-        for y in 0..add_assign_matrix.rows() {
-            for x in 0..add_assign_matrix.columns() {
-                assert_eq!(add_assign_matrix[y][x], 2);
+            for y in 0..add_matrix.rows() {
+                for x in 0..add_matrix.columns() {
+                    assert_eq!(add_matrix[y][x], 2);
+                }
             }
         }
-    }
 
-    #[test]
-    fn sub() {
-        let lhs = Matrix::<usize, 3, 3>::ones();
-        let rhs = Matrix::<usize, 3, 3>::ones();
+        #[test]
+        fn add_assign() {
+            let rhs = Matrix::<usize, 3, 3>::fill(1);
+            let mut add_assign_matrix = Matrix::<usize, 3, 3>::fill(1);
 
-        let add_matrix = lhs - rhs;
+            add_assign_matrix += rhs;
 
-        for y in 0..add_matrix.rows() {
-            for x in 0..add_matrix.columns() {
-                assert_eq!(add_matrix[y][x], 0);
+            for y in 0..add_assign_matrix.rows() {
+                for x in 0..add_assign_matrix.columns() {
+                    assert_eq!(add_assign_matrix[y][x], 2);
+                }
             }
         }
-    }
 
-    #[test]
-    fn sub_assign() {
-        let _rhs = Matrix::<usize, 3, 3>::ones();
-        let mut sub_assign_matrix = Matrix::<usize, 3, 3>::fill(3);
+        #[test]
+        fn sub() {
+            let lhs = Matrix::<usize, 3, 3>::fill(1);
+            let rhs = Matrix::<usize, 3, 3>::fill(1);
 
-        sub_assign_matrix -= _rhs;
+            let add_matrix = lhs - rhs;
 
-        for y in 0..sub_assign_matrix.rows() {
-            for x in 0..sub_assign_matrix.columns() {
-                assert_eq!(sub_assign_matrix[y][x], 2);
+            for y in 0..add_matrix.rows() {
+                for x in 0..add_matrix.columns() {
+                    assert_eq!(add_matrix[y][x], 0);
+                }
             }
         }
-    }
 
-    #[test]
-    fn matrix_mul() {
-        let _lhs = Matrix::<usize, 3, 3>::fill(5);
-        let _rhs = Matrix::<usize, 3, 3>::fill(2);
+        #[test]
+        fn sub_assign() {
+            let _rhs = Matrix::<usize, 3, 3>::fill(1);
+            let mut sub_assign_matrix = Matrix::<usize, 3, 3>::fill(3);
 
-        let add_matrix = _lhs * _rhs;
+            sub_assign_matrix -= _rhs;
 
-        for y in 0..add_matrix.rows() {
-            for x in 0..add_matrix.columns() {
-                assert_eq!(add_matrix[y][x], 10);
+            for y in 0..sub_assign_matrix.rows() {
+                for x in 0..sub_assign_matrix.columns() {
+                    assert_eq!(sub_assign_matrix[y][x], 2);
+                }
             }
         }
-    }
 
-    #[test]
-    fn scalar_mul() {
-        let _lhs = Matrix::<usize, 3, 3>::fill(5);
-        let _rhs = 2;
+        #[test]
+        fn matrix_mul() {
+            let matrix = Matrix::new([
+                [0, -1],
+                [1, 0]
+            ]);
 
-        let add_matrix = _lhs * _rhs;
+            let result = matrix.clone() * matrix;
 
-        for y in 0..add_matrix.rows() {
-            for x in 0..add_matrix.columns() {
-                assert_eq!(add_matrix[y][x], 10);
+            assert_eq!(result.components(), [
+                [-1, 0],
+                [0, -1]
+            ]);
+
+        }
+
+        #[test]
+        fn scalar_mul() {
+            let _lhs = Matrix::<usize, 3, 3>::fill(5);
+            let _rhs = 2;
+
+            let add_matrix = _lhs * _rhs;
+
+            for y in 0..add_matrix.rows() {
+                for x in 0..add_matrix.columns() {
+                    assert_eq!(add_matrix[y][x], 10);
+                }
             }
         }
-    }
 
-    #[test]
-    fn matrix_mul_assign() {
-        let _rhs = Matrix::<usize, 3, 3>::fill(2);
-        let mut mul_assign_matrix = Matrix::<usize, 3, 3>::fill(5);
+        #[test]
+        fn scalar_mul_assign() {
+            let mut _lhs = Matrix::<usize, 3, 3>::fill(5);
+            let _rhs = 2;
 
-        mul_assign_matrix *= _rhs;
+            _lhs *= _rhs;
 
-        for y in 0..mul_assign_matrix.rows() {
-            for x in 0..mul_assign_matrix.columns() {
-                assert_eq!(mul_assign_matrix[y][x], 10);
+            for y in 0.._lhs.rows() {
+                for x in 0.._lhs.columns() {
+                    assert_eq!(_lhs[y][x], 10);
+                }
             }
         }
-    }
 
-    #[test]
-    fn scalar_mul_assign() {
-        let mut _lhs = Matrix::<usize, 3, 3>::fill(5);
-        let _rhs = 2;
+        #[test]
+        fn scalar_div() {
+            let _lhs = Matrix::<usize, 3, 3>::fill(10);
+            let _rhs = 2;
 
-        _lhs *= _rhs;
+            let add_matrix = _lhs / _rhs;
 
-        for y in 0.._lhs.rows() {
-            for x in 0.._lhs.columns() {
-                assert_eq!(_lhs[y][x], 10);
+            for y in 0..add_matrix.rows() {
+                for x in 0..add_matrix.columns() {
+                    assert_eq!(add_matrix[y][x], 5);
+                }
             }
         }
-    }
 
-    #[test]
-    fn matrix_div() {
-        let _lhs = Matrix::<usize, 3, 3>::fill(10);
-        let _rhs = Matrix::<usize, 3, 3>::fill(2);
+        #[test]
+        fn scalar_div_assign() {
+            let mut _lhs = Matrix::<usize, 3, 3>::fill(10);
+            let _rhs = 2;
 
-        let add_matrix = _lhs / _rhs;
+            _lhs /= _rhs;
 
-        for y in 0..add_matrix.rows() {
-            for x in 0..add_matrix.columns() {
-                assert_eq!(add_matrix[y][x], 5);
+            for y in 0.._lhs.rows() {
+                for x in 0.._lhs.columns() {
+                    assert_eq!(_lhs[y][x], 5);
+                }
             }
         }
-    }
 
-    #[test]
-    fn scalar_div() {
-        let _lhs = Matrix::<usize, 3, 3>::fill(10);
-        let _rhs = 2;
+        #[test]
+        fn partial_eq() {
+            let mut _lhs = Matrix::<usize, 3, 3>::fill(10);
+            let _rhs = Matrix::<usize, 3, 3>::fill(5);
 
-        let add_matrix = _lhs / _rhs;
-
-        for y in 0..add_matrix.rows() {
-            for x in 0..add_matrix.columns() {
-                assert_eq!(add_matrix[y][x], 5);
-            }
+            assert_ne!(_lhs, _rhs);
+            assert_eq!(_lhs, _lhs);
         }
-    }
 
-    #[test]
-    fn matrix_div_assign() {
-        let _rhs = Matrix::<usize, 3, 3>::fill(2);
-        let mut mul_assign_matrix = Matrix::<usize, 3, 3>::fill(10);
+        #[test]
+        fn row() {
+            let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
 
-        mul_assign_matrix /= _rhs;
-
-        for y in 0..mul_assign_matrix.rows() {
-            for x in 0..mul_assign_matrix.columns() {
-                assert_eq!(mul_assign_matrix[y][x], 5);
-            }
+            assert_eq!(matrix.row(0), [1, 2, 3]);
+            assert_eq!(matrix.row(1), [4, 5, 6]);
         }
-    }
 
-    #[test]
-    fn scalar_div_assign() {
-        let mut _lhs = Matrix::<usize, 3, 3>::fill(10);
-        let _rhs = 2;
+        #[test]
+        fn column() {
+            let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
 
-        _lhs /= _rhs;
-
-        for y in 0.._lhs.rows() {
-            for x in 0.._lhs.columns() {
-                assert_eq!(_lhs[y][x], 5);
-            }
+            assert_eq!(matrix.column(0), [1, 4]);
+            assert_eq!(matrix.column(1), [2, 5]);
+            assert_eq!(matrix.column(2), [3, 6]);
         }
-    }
 
-    #[test]
-    fn row() {
-        let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
+        #[test]
+        fn count() {
+            let matrix = Matrix::<usize, 4, 4>::fill(0);
+            assert_eq!(matrix.count(), 16);
+        }
 
-        assert_eq!(*matrix.row(0), [1, 2, 3]);
-        assert_eq!(*matrix.row(1), [4, 5, 6]);
-    }
+        #[test]
+        fn identity() {
+            let matrix = Matrix::<usize, 3, 3>::identity();
 
-    #[test]
-    fn column() {
-        let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
+            assert_eq!(matrix.components(), [[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
+        }
 
-        assert_eq!(matrix.column(0), [1, 4]);
-        assert_eq!(matrix.column(1), [2, 5]);
-        assert_eq!(matrix.column(2), [3, 6]);
-    }
+        #[test]
+        fn transpose() {
+            let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
+            let transposed = matrix.transpose();
 
-    #[test]
-    fn unit() {
-        let matrix = Matrix::<usize, 3, 3>::unit();
-
-        assert_eq!(matrix.components(), [[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
-    }
-
-    #[test]
-    fn transpose() {
-        let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
-
-        let transposed = matrix.transpose();
-
-        assert_eq!(transposed.components(), [[1, 4], [2, 5], [3, 6],]);
+            assert_eq!(transposed.components(), [[1, 4], [2, 5], [3, 6],]);
+        }
     }
 }
