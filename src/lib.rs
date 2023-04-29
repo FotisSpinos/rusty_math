@@ -35,10 +35,10 @@ pub mod rusty_maths {
 
         use super::traits::{Array2D, Fill, Identity, Transpose};
 
-        use num::{one, zero, Num, Zero};
+        use num::{one, zero, Num, One, Zero};
         use std::{
             cmp::PartialEq, ops::Add, ops::AddAssign, ops::Div, ops::DivAssign, ops::Index,
-            ops::IndexMut, ops::Mul, ops::MulAssign, ops::Sub, ops::SubAssign
+            ops::IndexMut, ops::Mul, ops::MulAssign, ops::Sub, ops::SubAssign,
         };
 
         #[derive(Copy, Clone)]
@@ -58,7 +58,8 @@ pub mod rusty_maths {
             }
         }
 
-        impl<T, const ROWS: usize, const COLUMNS: usize> Array2D<T, ROWS, COLUMNS> for Matrix<T, ROWS, COLUMNS>
+        impl<T, const ROWS: usize, const COLUMNS: usize> Array2D<T, ROWS, COLUMNS>
+            for Matrix<T, ROWS, COLUMNS>
         where
             T: Clone + Copy + Num,
         {
@@ -227,19 +228,24 @@ pub mod rusty_maths {
             }
         }
 
-        impl<T, const LHS_ROWS: usize, const LHS_COLUMNS: usize, const RHS_COLUMN: usize> Mul<Matrix<T, LHS_COLUMNS, RHS_COLUMN>> for Matrix<T, LHS_ROWS, LHS_COLUMNS>
+        impl<T, const LHS_ROWS: usize, const LHS_COLUMNS: usize, const RHS_COLUMN: usize>
+            Mul<Matrix<T, LHS_COLUMNS, RHS_COLUMN>> for Matrix<T, LHS_ROWS, LHS_COLUMNS>
         where
             T: Num + Clone + Copy + AddAssign,
         {
-            type Output = Matrix::<T, LHS_ROWS, RHS_COLUMN>;
+            type Output = Matrix<T, LHS_ROWS, RHS_COLUMN>;
 
-            fn mul(self, rhs: Matrix<T, LHS_COLUMNS, RHS_COLUMN>) -> Matrix::<T, LHS_ROWS, RHS_COLUMN> {
+            fn mul(
+                self,
+                rhs: Matrix<T, LHS_COLUMNS, RHS_COLUMN>,
+            ) -> Matrix<T, LHS_ROWS, RHS_COLUMN> {
                 let mut matrix = Matrix::<T, LHS_ROWS, RHS_COLUMN>::zero();
 
                 for lhs_row in 0..LHS_ROWS {
                     for rhs_column in 0..RHS_COLUMN {
                         for lhs_column in 0..LHS_COLUMNS {
-                            matrix[lhs_row][rhs_column] += self[lhs_row][lhs_column] * rhs[lhs_column][rhs_column];
+                            matrix[lhs_row][rhs_column] +=
+                                self[lhs_row][lhs_column] * rhs[lhs_column][rhs_column];
                         }
                     }
                 }
@@ -347,19 +353,262 @@ pub mod rusty_maths {
                 true
             }
         }
+
+        pub type Matrix3x3<T> = Matrix<T, 3, 3>;
+        pub type Matrix4x4<T> = Matrix<T, 4, 4>;
+        pub type SymmetricalMatrix<T, const SIZE: usize> = Matrix<T, SIZE, SIZE>;
+
+        pub struct DiagonalMatrix<T, const SIZE: usize> {
+            pub components: [T; SIZE],
+        }
+
+        impl<T, const SIZE: usize> DiagonalMatrix<T, SIZE> {
+            pub fn new(components: [T; SIZE]) -> Self {
+                DiagonalMatrix {
+                    components: components,
+                }
+            }
+        }
+
+        impl<T, const SIZE: usize> Identity<DiagonalMatrix<T, SIZE>> for DiagonalMatrix<T, SIZE>
+        where
+            T: Num + One + Copy,
+        {
+            fn identity() -> DiagonalMatrix<T, SIZE> {
+                let components = [one::<T>(); SIZE];
+                DiagonalMatrix::new(components)
+            }
+        }
+
+        impl<T, const SIZE: usize> Add for DiagonalMatrix<T, SIZE>
+        where
+            T: Num + Clone + Copy + Add,
+        {
+            type Output = DiagonalMatrix<T, SIZE>;
+
+            fn add(self, rhs: Self) -> Self::Output {
+                let mut components = [one::<T>(); SIZE];
+
+                for i in 0..SIZE {
+                    components[i] = self.components[i] + rhs.components[i];
+                }
+
+                DiagonalMatrix::new(components)
+            }
+        }
+
+        impl<T, const SIZE: usize> Add<Matrix<T, SIZE, SIZE>> for DiagonalMatrix<T, SIZE>
+        where
+            T: Num + Clone + Copy + Add,
+        {
+            type Output = Matrix<T, SIZE, SIZE>;
+
+            fn add(self, rhs: Self::Output) -> Self::Output {
+                let mut output = rhs.clone();
+
+                for i in 0..SIZE {
+                    output.components[i][i] = output.components[i][i] + self.components[i];
+                }
+
+                output
+            }
+        }
+
+        impl<T, const SIZE: usize> AddAssign for DiagonalMatrix<T, SIZE>
+        where
+            T: Num + Clone + Copy,
+            DiagonalMatrix<T, SIZE>: Add,
+        {
+            fn add_assign(&mut self, rhs: Self) {
+                for i in 0..SIZE {
+                    self.components[i] = self.components[i] + rhs.components[i];
+                }
+            }
+        }
+
+        impl<T, const SIZE: usize> Sub for DiagonalMatrix<T, SIZE>
+        where
+            T: Num + Clone + Copy + Sub,
+        {
+            type Output = DiagonalMatrix<T, SIZE>;
+
+            fn sub(self, rhs: Self) -> Self::Output {
+                let mut components = [one::<T>(); SIZE];
+
+                for i in 0..SIZE {
+                    components[i] = self.components[i] - rhs.components[i];
+                }
+
+                DiagonalMatrix::new(components)
+            }
+        }
+
+        impl<T, const SIZE: usize> Sub<Matrix<T, SIZE, SIZE>> for DiagonalMatrix<T, SIZE>
+        where
+            T: Num + Clone + Copy + Add,
+        {
+            type Output = Matrix<T, SIZE, SIZE>;
+
+            fn sub(self, rhs: Self::Output) -> Self::Output {
+                let mut output = rhs.clone();
+
+                for i in 0..SIZE {
+                    output.components[i][i] = output.components[i][i] + self.components[i];
+                }
+
+                output
+            }
+        }
+
+        impl<T, const SIZE: usize> SubAssign for DiagonalMatrix<T, SIZE>
+        where
+            T: Num + Clone + Copy,
+            DiagonalMatrix<T, SIZE>: Add,
+        {
+            fn sub_assign(&mut self, rhs: Self) {
+                for i in 0..SIZE {
+                    self.components[i] = self.components[i] + rhs.components[i];
+                }
+            }
+        }
+    }
+
+    mod vector {
+
+        use num::{one, zero, Num, One, Zero, traits::{AsPrimitive, Pow}, Float};
+        use std::{
+            cmp::PartialEq, ops::Add, ops::AddAssign, ops::Div, ops::DivAssign, ops::Index,
+            ops::IndexMut, ops::Mul, ops::MulAssign, ops::Sub, ops::SubAssign, f64::consts,
+        };
+
+        pub struct Vector<T, const SIZE: usize> {
+            pub components: [T; SIZE]
+        }
+
+        impl<T, const SIZE: usize> Vector<T, SIZE> {
+            pub fn new(components: [T; SIZE]) -> Self {
+                Vector::<T, SIZE> {components: components}
+            }
+
+            pub fn size(&self) -> usize {
+                self.components.len()
+            }
+
+            pub fn axpy(a: T, x: Vector<T, SIZE>, y: Vector<T, SIZE>) -> Self
+            where 
+            Vector<T, SIZE>: Mul<T, Output = Vector<T, SIZE>> + Add<Vector<T, SIZE>, Output =Vector<T, SIZE>> {
+                y + (x * a)
+            }
+
+            pub fn dot(lhs: Vector<T, SIZE>, rhs: Vector<T, SIZE>) -> T
+            where T: Zero + Copy + Add + AddAssign + Mul<Output = T> {
+                let mut result: T = zero();
+
+                for i in 0..SIZE {
+                    result += lhs.components[i] * rhs.components[i];
+                }
+
+                result
+            }
+
+            pub fn length(&self) -> T 
+            where T: Zero + AddAssign + Mul<Output = T> + Copy + Pow<f32, Output = T> {
+                let mut square_sum:T = zero();
+
+                for i in 0..SIZE {
+                    square_sum += self.components[i] * self.components[i];
+                }
+
+                square_sum.pow(0.5)
+            }
+
+        }
+
+        impl<T, const SIZE: usize> Add<Vector<T, SIZE>> for Vector<T, SIZE>
+        where T: Add<Output = T> + Zero + Copy {
+
+            type Output = Vector<T, SIZE>;
+
+            fn add(self, rhs: Self) -> Self::Output {
+                let mut components = [zero::<T>(); SIZE];
+
+                for i in 0..SIZE {
+                    components[i] = self.components[i] + rhs.components[i];
+                }
+
+                Vector::<T, SIZE> {components: components}
+            }
+        }
+
+        impl<T, const SIZE: usize> Sub<Vector<T, SIZE>> for Vector<T, SIZE>
+        where T: Sub<Output = T> + Zero + Copy {
+
+            type Output = Vector<T, SIZE>;
+
+            fn sub(self, rhs: Self) -> Self::Output {
+                let mut components = [zero::<T>(); SIZE];
+
+                for i in 0..SIZE {
+                    components[i] = self.components[i] - rhs.components[i];
+                }
+
+                Vector::<T, SIZE>::new(components)
+            }
+        }
+
+        impl<T, const SIZE: usize> Mul<T> for Vector<T, SIZE>
+        where T: Mul<Output = T> + Zero + Copy {
+
+            type Output = Vector<T, SIZE>;
+
+            fn mul(self, rhs: T) -> Self::Output {
+                let mut components = [zero::<T>(); SIZE];
+
+                for i in 0..SIZE {
+                    components[i] = self.components[i] * rhs;
+                }
+
+                Vector::<T, SIZE>::new(components)
+            }
+        }
+
+        impl<T, const SIZE: usize> Div<T> for Vector<T, SIZE>
+        where T: Div<Output = T> + Zero + Copy {
+
+            type Output = Vector<T, SIZE>;
+
+            fn div(self, rhs: T) -> Self::Output {
+                let mut components = [zero::<T>(); SIZE];
+
+                for i in 0..SIZE {
+                    components[i] = self.components[i] / rhs;
+                }
+
+                Vector::<T, SIZE>::new(components)
+            }
+        }
+
+        pub type Vector2 = Vector<f32, 2>;
+        pub type Vector3 = Vector<f32, 3>;
+        pub type Vector4 = Vector<f32, 4>;
+
+        pub type Vector2Int = Vector<i32, 2>;
+        pub type Vector3Int = Vector<i32, 3>;
+        pub type Vector4Int = Vector<i32, 4>;
+
     }
 
     #[cfg(test)]
     mod matrix_tests {
 
-        use num::{One, Zero};
+        use num::Zero;
 
         use crate::rusty_maths::{
-            matrix::Matrix,
+            matrix::{Matrix, Matrix4x4},
             traits::{Fill, Identity, Transpose},
         };
 
-        use super::traits::Array2D;
+        use super::{matrix::Matrix3x3, traits::Array2D};
 
         impl<T, const ROWS: usize, const COLUMNS: usize> std::fmt::Debug for Matrix<T, ROWS, COLUMNS>
         where
@@ -368,6 +617,20 @@ pub mod rusty_maths {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 write!(f, "")
             }
+        }
+
+        #[test]
+        pub fn new() {
+            let components = [
+                [1, 2, 3],
+                [4, 5, 6]
+            ];
+
+            let matrix = Matrix::new(components);
+
+            assert!(matrix.rows() == 2);
+            assert!(matrix.columns() == 3);
+            assert!(matrix.components == components);
         }
 
         #[test]
@@ -382,7 +645,7 @@ pub mod rusty_maths {
         }
 
         #[test]
-        fn init_zero() {
+        fn zeros() {
             let matrix = Matrix::<usize, 3, 3>::zero();
             for y in 0..matrix.rows() {
                 for x in 0..matrix.columns() {
@@ -449,18 +712,11 @@ pub mod rusty_maths {
 
         #[test]
         fn matrix_mul() {
-            let matrix = Matrix::new([
-                [0, -1],
-                [1, 0]
-            ]);
+            let matrix = Matrix::new([[0, -1], [1, 0]]);
 
             let result = matrix.clone() * matrix;
 
-            assert_eq!(result.components(), [
-                [-1, 0],
-                [0, -1]
-            ]);
-
+            assert_eq!(result.components(), [[-1, 0], [0, -1]]);
         }
 
         #[test]
@@ -564,6 +820,64 @@ pub mod rusty_maths {
             let transposed = matrix.transpose();
 
             assert_eq!(transposed.components(), [[1, 4], [2, 5], [3, 6],]);
+        }
+
+        #[test]
+        fn matrix3x3() {
+            let matrix = Matrix3x3::<usize>::identity();
+            assert_eq!(matrix.rows(), 3);
+            assert_eq!(matrix.columns(), 3);
+        }
+
+        #[test]
+        fn matrix4x4() {
+            let matrix = Matrix4x4::<usize>::identity();
+            assert_eq!(matrix.rows(), 3);
+            assert_eq!(matrix.columns(), 3);
+        }
+    }
+
+    #[cfg(test)]
+    mod vector_tests {
+        use crate::rusty_maths::vector::Vector2;
+
+        use super::vector::{Vector, Vector2Int};
+
+        #[test]
+        fn new() {
+            let components = [1, 2, 3];
+
+            let vector = Vector::new([1,2,3]);
+
+            assert!(vector.size() == components.len());
+            assert!(vector.components == components);
+        }
+
+        #[test]
+        fn dot() {
+            let _lhs = Vector2Int::new([10, 5]);
+            let _rhs = Vector2Int::new([5, 10]);
+
+            let result = Vector2Int::dot(_lhs, _rhs);
+            assert!(result == 100);
+        }
+
+        #[test]
+        fn axpy() {
+            let a = 2;
+            let x = Vector2Int::new([1, 1]);
+            let y = Vector2Int::new([5, 5]);
+
+            let result = Vector2Int::axpy(a, x, y);
+            assert!(result.components == [7, 7]);
+        }
+
+        #[test]
+        fn length() {
+            let vector = Vector2::new([4.0, 3.0]);
+            let length = vector.length();
+
+            assert!(length == 5.0);
         }
     }
 }
