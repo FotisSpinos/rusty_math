@@ -63,10 +63,6 @@ pub mod rusty_maths {
         where
             T: Clone + Copy + Num,
         {
-            fn row(&self, index: usize) -> [T; COLUMNS] {
-                self.components[index]
-            }
-
             fn column(&self, index: usize) -> [T; ROWS] {
                 let mut output = [zero::<T>(); ROWS];
 
@@ -77,20 +73,24 @@ pub mod rusty_maths {
                 output
             }
 
-            fn rows(&self) -> usize {
-                ROWS
-            }
-
             fn columns(&self) -> usize {
                 COLUMNS
+            }
+
+            fn components(&self) -> [[T; COLUMNS]; ROWS] {
+                self.components
             }
 
             fn count(&self) -> usize {
                 self.rows() * self.columns()
             }
 
-            fn components(&self) -> [[T; COLUMNS]; ROWS] {
-                self.components
+            fn row(&self, index: usize) -> [T; COLUMNS] {
+                self.components[index]
+            }
+
+            fn rows(&self) -> usize {
+                ROWS
             }
         }
 
@@ -155,12 +155,12 @@ pub mod rusty_maths {
                 Matrix::new(components)
             }
 
-            fn is_zero(&self) -> bool {
-                todo!()
-            }
-
             fn set_zero(&mut self) {
                 *self = Zero::zero();
+            }
+
+            fn is_zero(&self) -> bool {
+                todo!()
             }
         }
 
@@ -364,9 +364,7 @@ pub mod rusty_maths {
 
         impl<T, const SIZE: usize> DiagonalMatrix<T, SIZE> {
             pub fn new(components: [T; SIZE]) -> Self {
-                DiagonalMatrix {
-                    components: components,
-                }
+                DiagonalMatrix { components }
             }
         }
 
@@ -487,7 +485,7 @@ pub mod rusty_maths {
 
         impl<T, const SIZE: usize> Vector<T, SIZE> {
             pub fn new(components: [T; SIZE]) -> Self {
-                Vector::<T, SIZE> {components: components}
+                Vector::<T, SIZE> {components}
             }
 
             pub fn size(&self) -> usize {
@@ -536,7 +534,7 @@ pub mod rusty_maths {
                     components[i] = self.components[i] + rhs.components[i];
                 }
 
-                Vector::<T, SIZE> {components: components}
+                Vector::<T, SIZE> {components}
             }
         }
 
@@ -628,9 +626,9 @@ pub mod rusty_maths {
 
             let matrix = Matrix::new(components);
 
-            assert!(matrix.rows() == 2);
-            assert!(matrix.columns() == 3);
-            assert!(matrix.components == components);
+            assert_eq!(matrix.rows(), 2);
+            assert_eq!(matrix.columns(), 3);
+            assert_eq!(matrix.components, components);
         }
 
         #[test]
@@ -832,8 +830,8 @@ pub mod rusty_maths {
         #[test]
         fn matrix4x4() {
             let matrix = Matrix4x4::<usize>::identity();
-            assert_eq!(matrix.rows(), 3);
-            assert_eq!(matrix.columns(), 3);
+            assert_eq!(matrix.rows(), 4);
+            assert_eq!(matrix.columns(), 4);
         }
     }
 
@@ -849,8 +847,8 @@ pub mod rusty_maths {
 
             let vector = Vector::new([1,2,3]);
 
-            assert!(vector.size() == components.len());
-            assert!(vector.components == components);
+            assert_eq!(vector.size(), components.len());
+            assert_eq!(vector.components, components);
         }
 
         #[test]
@@ -859,7 +857,7 @@ pub mod rusty_maths {
             let _rhs = Vector2Int::new([5, 10]);
 
             let result = Vector2Int::dot(_lhs, _rhs);
-            assert!(result == 100);
+            assert_eq!(result, 100);
         }
 
         #[test]
@@ -869,7 +867,7 @@ pub mod rusty_maths {
             let y = Vector2Int::new([5, 5]);
 
             let result = Vector2Int::axpy(a, x, y);
-            assert!(result.components == [7, 7]);
+            assert_eq!(result.components, [7, 7]);
         }
 
         #[test]
@@ -877,7 +875,7 @@ pub mod rusty_maths {
             let vector = Vector2::new([4.0, 3.0]);
             let length = vector.length();
 
-            assert!(length == 5.0);
+            assert_eq!(length, 5.0);
         }
     }
 }
