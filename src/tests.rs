@@ -32,24 +32,91 @@ mod matrix_tests {
     }
 
     #[test]
-    fn index() {
-        let matrix = Matrix::new([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+    fn column() {
+        let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
 
-        for y in 0..matrix.rows() {
-            for x in 0..matrix.columns() {
-                assert_eq!(matrix[y][x], x + (y * matrix.columns()) + 1)
-            }
-        }
+        assert_eq!(matrix.column(0), [1, 4]);
+        assert_eq!(matrix.column(1), [2, 5]);
+        assert_eq!(matrix.column(2), [3, 6]);
     }
 
     #[test]
-    fn zeros() {
-        let matrix = Matrix::<usize, 3, 3>::zero();
-        for y in 0..matrix.rows() {
-            for x in 0..matrix.columns() {
-                assert_eq!(matrix[y][x], 0);
-            }
-        }
+    fn columns() {
+        let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
+
+        assert_eq!(matrix.columns(), 3);
+    }
+
+    #[test]
+    fn components() {
+        let components = [[1, 2, 3], [4, 5, 6]];
+        let matrix = Matrix::<usize, 2, 3>::new(components);
+
+        assert_eq!(matrix.components(), components);
+    }
+
+    #[test]
+    fn count() {
+        let matrix = Matrix::<usize, 4, 4>::fill(0);
+        assert_eq!(matrix.count(), 16);
+    }
+
+    #[test]
+    fn row() {
+        let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
+
+        assert_eq!(matrix.row(0), [1, 2, 3]);
+        assert_eq!(matrix.row(1), [4, 5, 6]);
+    }
+
+    #[test]
+    fn rows() {
+        let matrix = Matrix::<usize, 4, 3>::fill(0);
+        assert_eq!(matrix.rows(), 4);
+    }
+
+    #[test]
+    fn transpose() {
+        let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
+        let transposed = matrix.transpose();
+
+        assert_eq!(transposed.components(), [[1, 4], [2, 5], [3, 6],]);
+    }
+
+    #[test]
+    fn fill() {
+        let matrix = Matrix::<usize, 2, 3>::fill(5);
+
+        assert_eq!(matrix.components(), [[5, 5, 5], [5, 5, 5]]);
+    }
+
+    #[test]
+    fn identity() {
+        let matrix = Matrix::<usize, 3, 3>::identity();
+
+        assert_eq!(matrix.components(), [[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
+    }
+
+    #[test]
+    fn zero() {
+        let matrix = Matrix::<usize, 2, 3>::zero();
+
+        assert_eq!(matrix.components(), [[0, 0, 0], [0, 0, 0]]);
+    }
+
+    #[test]
+    fn set_zero() {
+        let mut matrix = Matrix::<usize, 2, 3>::fill(5);
+        matrix.set_zero();
+
+        assert_eq!(matrix.components(), [[0, 0, 0], [0, 0, 0]]);
+    }
+
+    #[test]
+    fn is_zero() {
+        let matrix = Matrix::<usize, 2, 3>::zero();
+
+        assert!(matrix.is_zero());
     }
 
     #[test]
@@ -174,6 +241,30 @@ mod matrix_tests {
     }
 
     #[test]
+    fn index() {
+        let matrix = Matrix::new([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+
+        for y in 0..matrix.rows() {
+            for x in 0..matrix.columns() {
+                assert_eq!(matrix[y][x], x + (y * matrix.columns()) + 1)
+            }
+        }
+    }
+
+    #[test]
+    fn index_mut() {
+        let matrix = Matrix::<usize, 2, 2>::fill(1);
+
+        for y in 0..matrix.rows() {
+            for x in 0..matrix.columns() {
+                matrix[y][x] = 0;
+            }
+        }
+
+        assert_eq!(matrix.components(), [[0,0],[0,0]]);
+    }
+
+    #[test]
     fn partial_eq() {
         let mut _lhs = Matrix::<usize, 3, 3>::fill(10);
         let _rhs = Matrix::<usize, 3, 3>::fill(5);
@@ -182,42 +273,15 @@ mod matrix_tests {
         assert_eq!(_lhs, _lhs);
     }
 
-    #[test]
-    fn row() {
-        let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
-
-        assert_eq!(matrix.row(0), [1, 2, 3]);
-        assert_eq!(matrix.row(1), [4, 5, 6]);
-    }
 
     #[test]
-    fn column() {
-        let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
-
-        assert_eq!(matrix.column(0), [1, 4]);
-        assert_eq!(matrix.column(1), [2, 5]);
-        assert_eq!(matrix.column(2), [3, 6]);
-    }
-
-    #[test]
-    fn count() {
-        let matrix = Matrix::<usize, 4, 4>::fill(0);
-        assert_eq!(matrix.count(), 16);
-    }
-
-    #[test]
-    fn identity() {
-        let matrix = Matrix::<usize, 3, 3>::identity();
-
-        assert_eq!(matrix.components(), [[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
-    }
-
-    #[test]
-    fn transpose() {
-        let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
-        let transposed = matrix.transpose();
-
-        assert_eq!(transposed.components(), [[1, 4], [2, 5], [3, 6],]);
+    fn zeros() {
+        let matrix = Matrix::<usize, 3, 3>::zero();
+        for y in 0..matrix.rows() {
+            for x in 0..matrix.columns() {
+                assert_eq!(matrix[y][x], 0);
+            }
+        }
     }
 
     #[test]

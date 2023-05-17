@@ -38,9 +38,13 @@ pub mod rusty_maths {
         use super::traits::{Array2D, Fill, Identity, Transpose};
 
         use num::{one, zero, Num, One, Zero};
+
         use std::{
-            cmp::PartialEq, ops::Add, ops::AddAssign, ops::Div, ops::DivAssign, ops::Index,
-            ops::IndexMut, ops::Mul, ops::MulAssign, ops::Sub, ops::SubAssign,
+            ops:: {
+                Add, AddAssign, Div, DivAssign, Index,
+                IndexMut, Mul, MulAssign, Sub, SubAssign,
+            },
+            cmp::PartialEq
         };
 
         #[derive(Copy, Clone)]
@@ -161,8 +165,16 @@ pub mod rusty_maths {
                 *self = Zero::zero();
             }
 
-            fn is_zero(&self) -> bool {
-                todo!()
+            fn is_zero(&self) -> bool
+            where T: PartialEq + num::Zero {
+                for y in 0..ROWS {
+                    for x in 0..COLUMNS {
+                        if self.components[y][x] == zero() {
+                            false;
+                        }
+                    }
+                }
+                true
             }
         }
 
@@ -476,8 +488,10 @@ pub mod rusty_maths {
     pub mod vector {
         use num::{zero, Zero, traits::{Pow}};
         use std::{
-            ops::Add, ops::AddAssign, ops::Div,
-            ops::Mul, ops::Sub
+            ops::{
+                Add, AddAssign, Div,
+                Mul, Sub
+            }
         };
 
         pub struct Vector<T, const SIZE: usize> {
