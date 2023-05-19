@@ -5,12 +5,12 @@ mod matrix_tests {
 
     use crate::rusty_maths::{
         matrix::{Matrix, Matrix3x3, Matrix4x4},
-        traits::{Fill, Identity, Transpose, Array2D},
+        traits::{Array2D, Fill, Identity, Transpose},
     };
 
     impl<T, const ROWS: usize, const COLUMNS: usize> std::fmt::Debug for Matrix<T, ROWS, COLUMNS>
-        where
-            T: Clone + Copy,
+    where
+        T: Clone + Copy,
     {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             write!(f, "")
@@ -19,16 +19,21 @@ mod matrix_tests {
 
     #[test]
     pub fn new() {
-        let components = [
-            [1, 2, 3],
-            [4, 5, 6]
-        ];
-
+        let components = [[1, 2, 3], [4, 5, 6]];
         let matrix = Matrix::new(components);
 
         assert_eq!(matrix.rows(), 2);
         assert_eq!(matrix.columns(), 3);
         assert_eq!(matrix.components, components);
+    }
+
+    #[test]
+    pub fn clone() {
+        let components = [[1, 2, 3], [4, 5, 6]];
+        let matrix = Matrix::new(components);
+        let clone = matrix.clone();
+
+        assert_eq!(matrix, clone);
     }
 
     #[test]
@@ -56,9 +61,9 @@ mod matrix_tests {
     }
 
     #[test]
-    fn count() {
+    fn len() {
         let matrix = Matrix::<usize, 4, 4>::fill(0);
-        assert_eq!(matrix.count(), 16);
+        assert_eq!(matrix.len(), 16);
     }
 
     #[test]
@@ -253,7 +258,7 @@ mod matrix_tests {
 
     #[test]
     fn index_mut() {
-        let matrix = Matrix::<usize, 2, 2>::fill(1);
+        let mut matrix = Matrix::<usize, 2, 2>::fill(1);
 
         for y in 0..matrix.rows() {
             for x in 0..matrix.columns() {
@@ -261,7 +266,7 @@ mod matrix_tests {
             }
         }
 
-        assert_eq!(matrix.components(), [[0,0],[0,0]]);
+        assert_eq!(matrix.components(), [[0, 0], [0, 0]]);
     }
 
     #[test]
@@ -271,17 +276,6 @@ mod matrix_tests {
 
         assert_ne!(_lhs, _rhs);
         assert_eq!(_lhs, _lhs);
-    }
-
-
-    #[test]
-    fn zeros() {
-        let matrix = Matrix::<usize, 3, 3>::zero();
-        for y in 0..matrix.rows() {
-            for x in 0..matrix.columns() {
-                assert_eq!(matrix[y][x], 0);
-            }
-        }
     }
 
     #[test]
@@ -301,25 +295,21 @@ mod matrix_tests {
 
 #[cfg(test)]
 mod vector_tests {
-    use crate::rusty_maths::vector::{Vector, Vector2Int, Vector2};
+    use crate::rusty_maths::vector::{Vector, Vector2, Vector2Int};
 
     #[test]
     fn new() {
-        let components = [1, 2, 3];
+        let vector = Vector::new([1, 2, 3]);
 
-        let vector = Vector::new([1,2,3]);
-
-        assert_eq!(vector.size(), components.len());
-        assert_eq!(vector.components, components);
+        assert_eq!(vector.components, [1, 2, 3]);
     }
 
     #[test]
-    fn dot() {
-        let _lhs = Vector2Int::new([10, 5]);
-        let _rhs = Vector2Int::new([5, 10]);
+    fn len() {
+        let components = [1, 2, 3];
+        let vector = Vector::new([1, 2, 3]);
 
-        let result = Vector2Int::dot(_lhs, _rhs);
-        assert_eq!(result, 100);
+        assert_eq!(vector.len(), components.len());
     }
 
     #[test]
@@ -333,10 +323,53 @@ mod vector_tests {
     }
 
     #[test]
-    fn length() {
+    fn dot() {
+        let _lhs = Vector2Int::new([10, 5]);
+        let _rhs = Vector2Int::new([5, 10]);
+
+        let result = Vector2Int::dot(_lhs, _rhs);
+        assert_eq!(result, 100);
+    }
+
+    #[test]
+    fn magnitude() {
         let vector = Vector2::new([4.0, 3.0]);
-        let length = vector.length();
+        let length = vector.magnitude();
 
         assert_eq!(length, 5.0);
+    }
+
+    #[test]
+    fn add() {
+        let _lhs = Vector2::new([2.0, 3.0]);
+        let _rhs = Vector2::new([3.0, 2.0]);
+        let result = _lhs + _rhs;
+
+        assert_eq!(result.components, [5.0, 5.0]);
+    }
+
+    #[test]
+    fn sub() {
+        let _lhs = Vector2::new([2.0, 3.0]);
+        let _rhs = Vector2::new([3.0, 2.0]);
+        let result = _lhs - _rhs;
+
+        assert_eq!(result.components, [-1.0, 1.0]);
+    }
+
+    #[test]
+    fn scalar_mul() {
+        let vector = Vector2::new([1.0, 2.0]);
+        let result = vector * 2.0;
+
+        assert_eq!(result.components, [2.0, 4.0]);
+    }
+
+    #[test]
+    fn scalar_div() {
+        let vector = Vector2::new([2.0, 4.0]);
+        let result = vector / 2.0;
+
+        assert_eq!(result.components, [1.0, 2.0]);
     }
 }

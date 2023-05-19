@@ -25,7 +25,7 @@ pub mod rusty_maths {
 
             fn components(&self) -> [[ComponentType; COLUMNS]; ROWS];
 
-            fn count(&self) -> usize;
+            fn len(&self) -> usize;
 
             fn row(&self, index: usize) -> [ComponentType; COLUMNS];
 
@@ -40,11 +40,10 @@ pub mod rusty_maths {
         use num::{one, zero, Num, One, Zero};
 
         use std::{
-            ops:: {
-                Add, AddAssign, Div, DivAssign, Index,
-                IndexMut, Mul, MulAssign, Sub, SubAssign,
+            cmp::PartialEq,
+            ops::{
+                Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign,
             },
-            cmp::PartialEq
         };
 
         #[derive(Copy, Clone)]
@@ -87,7 +86,7 @@ pub mod rusty_maths {
                 self.components
             }
 
-            fn count(&self) -> usize {
+            fn len(&self) -> usize {
                 self.rows() * self.columns()
             }
 
@@ -166,7 +165,9 @@ pub mod rusty_maths {
             }
 
             fn is_zero(&self) -> bool
-            where T: PartialEq + num::Zero {
+            where
+                T: PartialEq + num::Zero,
+            {
                 for y in 0..ROWS {
                     for x in 0..COLUMNS {
                         if self.components[y][x] == zero() {
@@ -486,76 +487,43 @@ pub mod rusty_maths {
     }
 
     pub mod vector {
-        use num::{zero, Zero, traits::{Pow}};
-        use std::{
-            ops::{
-                Add, AddAssign, Div,
-                Mul, Sub
-            }
-        };
+        use num::{one, traits::Pow, zero, Num, Zero};
+        use std::ops::{Add, Div, Mul, Sub};
 
+        pub type Vector2 = Vector<f32, 2>;
+        pub type Vector3 = Vector<f32, 3>;
+        pub type Vector4 = Vector<f32, 4>;
+
+        pub type Vector2Int = Vector<i32, 2>;
+        pub type Vector3Int = Vector<i32, 3>;
+        pub type Vector4Int = Vector<i32, 4>;
+
+        #[derive(Copy, Clone)]
         pub struct Vector<T, const SIZE: usize> {
-            pub components: [T; SIZE]
+            pub components: [T; SIZE],
         }
 
-        impl<T, const SIZE: usize> Vector<T, SIZE> {
-            pub fn new(components: [T; SIZE]) -> Self {
-                Vector::<T, SIZE> {components}
-            }
-
-            pub fn size(&self) -> usize {
-                self.components.len()
-            }
-
-            pub fn axpy(a: T, x: Vector<T, SIZE>, y: Vector<T, SIZE>) -> Self
-            where 
-            Vector<T, SIZE>: Mul<T, Output = Vector<T, SIZE>> + Add<Vector<T, SIZE>, Output =Vector<T, SIZE>> {
-                y + (x * a)
-            }
-
-            pub fn dot(lhs: Vector<T, SIZE>, rhs: Vector<T, SIZE>) -> T
-            where T: Zero + Copy + Add + AddAssign + Mul<Output = T> {
-                let mut result: T = zero();
-
-                for i in 0..SIZE {
-                    result += lhs.components[i] * rhs.components[i];
-                }
-
-                result
-            }
-
-            pub fn length(&self) -> T 
-            where T: Zero + AddAssign + Mul<Output = T> + Copy + Pow<f32, Output = T> {
-                let mut square_sum:T = zero();
-
-                for i in 0..SIZE {
-                    square_sum += self.components[i] * self.components[i];
-                }
-
-                square_sum.pow(0.5)
-            }
-
-        }
-
-        impl<T, const SIZE: usize> Add<Vector<T, SIZE>> for Vector<T, SIZE>
-        where T: Add<Output = T> + Zero + Copy {
-
+        impl<T, const SIZE: usize> Div<T> for Vector<T, SIZE>
+        where
+            T: Div<Output = T> + Zero + Copy,
+        {
             type Output = Vector<T, SIZE>;
 
-            fn add(self, rhs: Self) -> Self::Output {
+            fn div(self, rhs: T) -> Self::Output {
                 let mut components = [zero::<T>(); SIZE];
 
                 for i in 0..SIZE {
-                    components[i] = self.components[i] + rhs.components[i];
+                    components[i] = self.components[i] / rhs;
                 }
 
-                Vector::<T, SIZE> {components}
+                Vector::<T, SIZE>::new(components)
             }
         }
 
         impl<T, const SIZE: usize> Sub<Vector<T, SIZE>> for Vector<T, SIZE>
-        where T: Sub<Output = T> + Zero + Copy {
-
+        where
+            T: Sub<Output = T> + Zero + Copy,
+        {
             type Output = Vector<T, SIZE>;
 
             fn sub(self, rhs: Self) -> Self::Output {
@@ -570,8 +538,9 @@ pub mod rusty_maths {
         }
 
         impl<T, const SIZE: usize> Mul<T> for Vector<T, SIZE>
-        where T: Mul<Output = T> + Zero + Copy {
-
+        where
+            T: Mul<Output = T> + Zero + Copy,
+        {
             type Output = Vector<T, SIZE>;
 
             fn mul(self, rhs: T) -> Self::Output {
@@ -585,28 +554,82 @@ pub mod rusty_maths {
             }
         }
 
-        impl<T, const SIZE: usize> Div<T> for Vector<T, SIZE>
-        where T: Div<Output = T> + Zero + Copy {
-
+        impl<T, const SIZE: usize> Add<Vector<T, SIZE>> for Vector<T, SIZE>
+        where
+            T: Add<Output = T> + Zero + Copy,
+        {
             type Output = Vector<T, SIZE>;
 
-            fn div(self, rhs: T) -> Self::Output {
+            fn add(self, rhs: Self) -> Self::Output {
                 let mut components = [zero::<T>(); SIZE];
 
                 for i in 0..SIZE {
-                    components[i] = self.components[i] / rhs;
+                    components[i] = self.components[i] + rhs.components[i];
                 }
 
-                Vector::<T, SIZE>::new(components)
+                Vector::<T, SIZE> { components }
             }
         }
 
-        pub type Vector2 = Vector<f32, 2>;
-        pub type Vector3 = Vector<f32, 3>;
-        pub type Vector4 = Vector<f32, 4>;
+        impl<T, const SIZE: usize> Vector<T, SIZE> {
+            pub fn new(components: [T; SIZE]) -> Self {
+                Vector::<T, SIZE> { components }
+            }
 
-        pub type Vector2Int = Vector<i32, 2>;
-        pub type Vector3Int = Vector<i32, 3>;
-        pub type Vector4Int = Vector<i32, 4>;
+            pub fn len(&self) -> usize {
+                self.components.len()
+            }
+
+            pub fn dot(lhs: Vector<T, SIZE>, rhs: Vector<T, SIZE>) -> T
+            where
+                T: Zero + Mul<Output = T> + Copy,
+            {
+                let mut result: T = zero();
+
+                for i in 0..SIZE {
+                    result = result + lhs.components[i] * rhs.components[i];
+                }
+
+                result
+            }
+
+            pub fn unit_bases(index: usize) -> Self
+            where
+                T: Num + Copy,
+            {
+                let mut components = [zero(); SIZE];
+                components[index] = one();
+
+                Vector::<T, SIZE>::new(components)
+            }
+
+            pub fn magnitude(&self) -> T
+            where
+                T: Num + Copy + Pow<f32, Output = T>,
+            {
+                let mut square_sum: T = zero();
+
+                for i in 0..SIZE {
+                    square_sum = square_sum + self.components[i] * self.components[i];
+                }
+
+                square_sum.pow(0.5)
+            }
+
+            pub fn unit(self) -> Self
+            where
+                T: Num + Copy + Pow<f32, Output = T>,
+            {
+                self / self.magnitude()
+            }
+
+            pub fn axpy(a: T, x: Vector<T, SIZE>, y: Vector<T, SIZE>) -> Self
+            where
+                Vector<T, SIZE>: Mul<T, Output = Vector<T, SIZE>>
+                    + Add<Vector<T, SIZE>, Output = Vector<T, SIZE>>,
+            {
+                y + (x * a)
+            }
+        }
     }
 }
