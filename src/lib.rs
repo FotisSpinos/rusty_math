@@ -381,6 +381,13 @@ pub mod rusty_maths {
             pub fn new(components: [T; SIZE]) -> Self {
                 DiagonalMatrix { components }
             }
+
+            pub fn fill(mut self, value: T)
+            where T : Clone {
+                for i in 0..SIZE {
+                    self.components[i] = value.clone();
+                }
+            }
         }
 
         impl<T, const SIZE: usize> Identity<DiagonalMatrix<T, SIZE>> for DiagonalMatrix<T, SIZE>
@@ -421,6 +428,40 @@ pub mod rusty_maths {
 
                 for i in 0..SIZE {
                     output.components[i][i] = output.components[i][i] + self.components[i];
+                }
+
+                output
+            }
+        }
+
+        impl<T, const SIZE: usize> Mul<T> for DiagonalMatrix<T, SIZE>
+            where T: Num + Clone + Copy,
+            DiagonalMatrix<T, SIZE> : Clone
+        {
+            type Output = DiagonalMatrix<T, SIZE>;
+
+            fn mul(self, rhs: T) -> Self::Output {
+                let mut output = self.clone();
+
+                for i in 0..SIZE {
+                    output.components[i] = output.components[i] * rhs;
+                }
+
+                output
+            }
+        }
+
+        impl<T, const SIZE: usize> Mul<DiagonalMatrix<T, SIZE>> for DiagonalMatrix<T, SIZE>
+        where T: Num + Clone + Copy,
+            DiagonalMatrix<T, SIZE> : Clone
+        {
+            type Output = DiagonalMatrix<T, SIZE>;
+
+            fn mul(self, rhs: DiagonalMatrix<T, SIZE>) -> Self::Output {
+                let mut output = self.clone();
+
+                for i in 0..SIZE {
+                    output.components[i] = output.components[i] * rhs.components[i];
                 }
 
                 output
@@ -624,8 +665,8 @@ pub mod rusty_maths {
             }
 
             pub fn axpy(a: T, x: Vector<T, SIZE>, y: Vector<T, SIZE>) -> Self
-            where
-                Vector<T, SIZE>: Mul<T, Output = Vector<T, SIZE>>
+                where
+                    Vector<T, SIZE>: Mul<T, Output=Vector<T, SIZE>>
                     + Add<Vector<T, SIZE>, Output = Vector<T, SIZE>>,
             {
                 y + (x * a)
