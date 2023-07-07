@@ -35,7 +35,11 @@ pub mod rusty_maths {
 
     pub mod matrix {
 
-        use super::traits::{Array2D, Fill, Identity, Transpose};
+        use super::{
+            traits::{Array2D, Fill, Identity, Transpose}
+        };
+
+        use super::vector::{Vector};
 
         use num::{one, zero, Num, One, Zero};
 
@@ -60,6 +64,23 @@ pub mod rusty_maths {
         {
             pub fn new(components: [[T; COLUMNS]; ROWS]) -> Self {
                 Matrix::<T, ROWS, COLUMNS> { components }
+            }
+
+            pub fn diagonal_matrix_mul(lhs: Self, rhs: Vector<T, COLUMNS>) -> Vector<T, ROWS>
+            where T: Zero + Mul<Output = T> {
+
+                let mut result = Vector::<T, ROWS>::new([zero(); ROWS]);
+
+                for i in 0..COLUMNS {
+                    for v in 0..i {
+                        result.components[i] = result.components[i] + lhs.components[v][i] * rhs.components[v];
+                    }
+                    for j in i..ROWS {
+                        result.components[i] = result.components[i] + lhs.components[i][j] * rhs.components[j];
+                    }
+                }
+
+                result
             }
         }
 
@@ -285,6 +306,25 @@ pub mod rusty_maths {
                 }
 
                 matrix
+            }
+        }
+
+        impl<T, const ROWS: usize, const COLUMNS: usize> Mul<Vector<T, COLUMNS>> for Matrix<T, ROWS, COLUMNS>
+        where
+            T: Num + Clone + Copy,
+        {
+            type Output = Vector<T, ROWS>;
+
+            fn mul(self, rhs: Vector<T, COLUMNS>) -> Self::Output {
+                let mut result = Self::Output::new([zero(); ROWS]);
+
+                for i in 0..ROWS {
+                    for j in 0..COLUMNS {
+                        result.components[i] = result.components[i] + self.components[i][j] * rhs.components[j];
+                    }
+                }
+
+                result
             }
         }
 
