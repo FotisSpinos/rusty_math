@@ -3,6 +3,8 @@ mod tests;
 pub mod rusty_maths {
 
     pub mod traits {
+        use super::vector::Vector;
+
         pub trait Transpose<ReturnType> {
             fn transpose(&self) -> ReturnType;
         }
@@ -19,7 +21,7 @@ pub mod rusty_maths {
         }
 
         pub trait Array2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
-            fn column(&self, index: usize) -> [ComponentType; ROWS];
+            fn column(&self, index: usize) -> Vector::<ComponentType, ROWS>;
 
             fn columns(&self) -> usize;
 
@@ -27,7 +29,7 @@ pub mod rusty_maths {
 
             fn len(&self) -> usize;
 
-            fn row(&self, index: usize) -> [ComponentType; COLUMNS];
+            fn row(&self, index: usize) -> Vector::<ComponentType, COLUMNS>;
 
             fn rows(&self) -> usize;
         }
@@ -89,14 +91,14 @@ pub mod rusty_maths {
         where
             T: Clone + Copy + Num,
         {
-            fn column(&self, index: usize) -> [T; ROWS] {
+            fn column(&self, index: usize) -> Vector<T, ROWS> {
                 let mut output = [zero::<T>(); ROWS];
 
                 for i in 0..ROWS {
                     output[i] = self.components[i][index];
                 }
 
-                output
+                Vector::<T, ROWS>::new(output)
             }
 
             fn columns(&self) -> usize {
@@ -111,8 +113,8 @@ pub mod rusty_maths {
                 self.rows() * self.columns()
             }
 
-            fn row(&self, index: usize) -> [T; COLUMNS] {
-                self.components[index]
+            fn row(&self, index: usize) -> Vector::<T, COLUMNS> {
+                Vector::new(self.components[index])
             }
 
             fn rows(&self) -> usize {
@@ -579,7 +581,7 @@ pub mod rusty_maths {
         pub type Vector3Int = Vector<i32, 3>;
         pub type Vector4Int = Vector<i32, 4>;
 
-        #[derive(Copy, Clone)]
+        #[derive(Copy, Clone, Debug)]
         pub struct Vector<T, const SIZE: usize> {
             pub components: [T; SIZE],
         }
@@ -615,6 +617,18 @@ pub mod rusty_maths {
                 }
 
                 Vector::<T, SIZE>::new(components)
+            }
+        }
+
+        impl<T, const SIZE: usize> PartialEq for Vector<T, SIZE> 
+        where T : PartialEq {
+
+            fn eq(&self, other: &Self) -> bool {
+                self.components == other.components
+            }
+
+            fn ne(&self, other: &Self) -> bool {
+                !self.eq(other)
             }
         }
 

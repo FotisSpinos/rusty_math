@@ -5,7 +5,7 @@ mod matrix_tests {
 
     use crate::rusty_maths::{
         matrix::{Matrix, Matrix3x3, Matrix4x4},
-        traits::{Array2D, Fill, Identity, Transpose},
+        traits::{Array2D, Fill, Identity, Transpose}, vector::Vector,
     };
 
     impl<T, const ROWS: usize, const COLUMNS: usize> std::fmt::Debug for Matrix<T, ROWS, COLUMNS>
@@ -40,9 +40,9 @@ mod matrix_tests {
     fn column() {
         let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
 
-        assert_eq!(matrix.column(0), [1, 4]);
-        assert_eq!(matrix.column(1), [2, 5]);
-        assert_eq!(matrix.column(2), [3, 6]);
+        assert_eq!(matrix.column(0), Vector::new([1, 4]));
+        assert_eq!(matrix.column(1), Vector::new([2, 5]));
+        assert_eq!(matrix.column(2), Vector::new([3, 6]));
     }
 
     #[test]
@@ -70,8 +70,8 @@ mod matrix_tests {
     fn row() {
         let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
 
-        assert_eq!(matrix.row(0), [1, 2, 3]);
-        assert_eq!(matrix.row(1), [4, 5, 6]);
+        assert_eq!(matrix.row(0), Vector::new([1, 2, 3]));
+        assert_eq!(matrix.row(1), Vector::new([4, 5, 6]));
     }
 
     #[test]
