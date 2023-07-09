@@ -21,7 +21,7 @@ pub mod rusty_maths {
         }
 
         pub trait Array2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
-            fn column(&self, index: usize) -> Vector::<ComponentType, ROWS>;
+            fn column(&self, index: usize) -> Vector<ComponentType, ROWS>;
 
             fn columns(&self) -> usize;
 
@@ -29,7 +29,7 @@ pub mod rusty_maths {
 
             fn len(&self) -> usize;
 
-            fn row(&self, index: usize) -> Vector::<ComponentType, COLUMNS>;
+            fn row(&self, index: usize) -> Vector<ComponentType, COLUMNS>;
 
             fn rows(&self) -> usize;
         }
@@ -37,11 +37,9 @@ pub mod rusty_maths {
 
     pub mod matrix {
 
-        use super::{
-            traits::{Array2D, Fill, Identity, Transpose}
-        };
+        use super::traits::{Array2D, Fill, Identity, Transpose};
 
-        use super::vector::{Vector};
+        use super::vector::Vector;
 
         use num::{one, zero, Num, One, Zero};
 
@@ -69,16 +67,19 @@ pub mod rusty_maths {
             }
 
             pub fn diagonal_matrix_mul(lhs: Self, rhs: Vector<T, COLUMNS>) -> Vector<T, ROWS>
-            where T: Zero + Mul<Output = T> {
-
+            where
+                T: Zero + Mul<Output = T>,
+            {
                 let mut result = Vector::<T, ROWS>::new([zero(); ROWS]);
 
                 for i in 0..COLUMNS {
                     for v in 0..i {
-                        result.components[i] = result.components[i] + lhs.components[v][i] * rhs.components[v];
+                        result.components[i] =
+                            result.components[i] + lhs.components[v][i] * rhs.components[v];
                     }
                     for j in i..ROWS {
-                        result.components[i] = result.components[i] + lhs.components[i][j] * rhs.components[j];
+                        result.components[i] =
+                            result.components[i] + lhs.components[i][j] * rhs.components[j];
                     }
                 }
 
@@ -113,7 +114,7 @@ pub mod rusty_maths {
                 self.rows() * self.columns()
             }
 
-            fn row(&self, index: usize) -> Vector::<T, COLUMNS> {
+            fn row(&self, index: usize) -> Vector<T, COLUMNS> {
                 Vector::new(self.components[index])
             }
 
@@ -176,7 +177,7 @@ pub mod rusty_maths {
 
         impl<T, const ROWS: usize, const COLUMNS: usize> Zero for Matrix<T, ROWS, COLUMNS>
         where
-            T: Clone + Copy + Num,
+            T: Clone + Copy + Num
         {
             fn zero() -> Self {
                 let components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
@@ -189,12 +190,12 @@ pub mod rusty_maths {
 
             fn is_zero(&self) -> bool
             where
-                T: PartialEq + num::Zero,
+                T: PartialEq + num::Zero
             {
                 for y in 0..ROWS {
                     for x in 0..COLUMNS {
                         if self.components[y][x] == zero() {
-                            false;
+                            return false
                         }
                     }
                 }
@@ -311,7 +312,8 @@ pub mod rusty_maths {
             }
         }
 
-        impl<T, const ROWS: usize, const COLUMNS: usize> Mul<Vector<T, COLUMNS>> for Matrix<T, ROWS, COLUMNS>
+        impl<T, const ROWS: usize, const COLUMNS: usize> Mul<Vector<T, COLUMNS>>
+            for Matrix<T, ROWS, COLUMNS>
         where
             T: Num + Clone + Copy,
         {
@@ -322,7 +324,8 @@ pub mod rusty_maths {
 
                 for i in 0..ROWS {
                     for j in 0..COLUMNS {
-                        result.components[i] = result.components[i] + self.components[i][j] * rhs.components[j];
+                        result.components[i] =
+                            result.components[i] + self.components[i][j] * rhs.components[j];
                     }
                 }
 
@@ -425,7 +428,9 @@ pub mod rusty_maths {
             }
 
             pub fn fill(mut self, value: T)
-            where T : Clone {
+            where
+                T: Clone,
+            {
                 for i in 0..SIZE {
                     self.components[i] = value.clone();
                 }
@@ -477,8 +482,9 @@ pub mod rusty_maths {
         }
 
         impl<T, const SIZE: usize> Mul<T> for DiagonalMatrix<T, SIZE>
-            where T: Num + Clone + Copy,
-            DiagonalMatrix<T, SIZE> : Clone
+        where
+            T: Num + Clone + Copy,
+            DiagonalMatrix<T, SIZE>: Clone,
         {
             type Output = DiagonalMatrix<T, SIZE>;
 
@@ -494,8 +500,9 @@ pub mod rusty_maths {
         }
 
         impl<T, const SIZE: usize> Mul<DiagonalMatrix<T, SIZE>> for DiagonalMatrix<T, SIZE>
-        where T: Num + Clone + Copy,
-            DiagonalMatrix<T, SIZE> : Clone
+        where
+            T: Num + Clone + Copy,
+            DiagonalMatrix<T, SIZE>: Clone,
         {
             type Output = DiagonalMatrix<T, SIZE>;
 
@@ -549,7 +556,7 @@ pub mod rusty_maths {
                 let mut output = rhs.clone();
 
                 for i in 0..SIZE {
-                    output.components[i][i] = output.components[i][i] + self.components[i];
+                    output.components[i][i] = output.components[i][i] - self.components[i];
                 }
 
                 output
@@ -563,7 +570,7 @@ pub mod rusty_maths {
         {
             fn sub_assign(&mut self, rhs: Self) {
                 for i in 0..SIZE {
-                    self.components[i] = self.components[i] + rhs.components[i];
+                    self.components[i] = self.components[i] - rhs.components[i];
                 }
             }
         }
@@ -620,9 +627,10 @@ pub mod rusty_maths {
             }
         }
 
-        impl<T, const SIZE: usize> PartialEq for Vector<T, SIZE> 
-        where T : PartialEq {
-
+        impl<T, const SIZE: usize> PartialEq for Vector<T, SIZE>
+        where
+            T: PartialEq,
+        {
             fn eq(&self, other: &Self) -> bool {
                 self.components == other.components
             }
@@ -719,8 +727,8 @@ pub mod rusty_maths {
             }
 
             pub fn axpy(a: T, x: Vector<T, SIZE>, y: Vector<T, SIZE>) -> Self
-                where
-                    Vector<T, SIZE>: Mul<T, Output=Vector<T, SIZE>>
+            where
+                Vector<T, SIZE>: Mul<T, Output = Vector<T, SIZE>>
                     + Add<Vector<T, SIZE>, Output = Vector<T, SIZE>>,
             {
                 y + (x * a)

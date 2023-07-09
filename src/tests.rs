@@ -5,7 +5,8 @@ mod matrix_tests {
 
     use crate::rusty_maths::{
         matrix::{Matrix, Matrix3x3, Matrix4x4},
-        traits::{Array2D, Fill, Identity, Transpose}, vector::Vector,
+        traits::{Array2D, Fill, Identity, Transpose},
+        vector::Vector,
     };
 
     impl<T, const ROWS: usize, const COLUMNS: usize> std::fmt::Debug for Matrix<T, ROWS, COLUMNS>
