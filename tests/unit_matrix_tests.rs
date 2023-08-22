@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod matrix_tests {
-
     use num::Zero;
-    use rusty_math::rusty_maths::{vector::Vector, matrix::{Matrix, Matrix3x3, Matrix4x4}, traits::{Array2D, Fill, Transpose, Identity}};
+    use rusty_math::{Matrix, rusty_maths::traits::{Array2D, Fill, Transpose, Identity}, Vector, Matrix3x3, Matrix4x4};
+
 
     #[test]
     pub fn new() {
@@ -282,7 +282,7 @@ mod matrix_tests {
 
 #[cfg(test)]
 mod vector_tests {
-    use rusty_math::rusty_maths::vector::{Vector, Vector2Int, Vector2};
+    use rusty_math::{Vector, Vector2Int, Vector2};
 
     #[test]
     fn new() {
