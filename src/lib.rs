@@ -1,5 +1,3 @@
-mod tests;
-
 pub mod rusty_maths {
 
     pub mod traits {
@@ -50,7 +48,7 @@ pub mod rusty_maths {
             },
         };
 
-        #[derive(Copy, Clone)]
+        #[derive(Debug, Copy, Clone)]
         pub struct Matrix<T, const ROWS: usize, const COLUMNS: usize>
         where
             T: Clone,
@@ -194,7 +192,7 @@ pub mod rusty_maths {
             {
                 for y in 0..ROWS {
                     for x in 0..COLUMNS {
-                        if self.components[y][x] == zero() {
+                        if self.components[y][x] != zero() {
                             return false
                         }
                     }

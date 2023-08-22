@@ -2,21 +2,7 @@
 mod matrix_tests {
 
     use num::Zero;
-
-    use crate::rusty_maths::{
-        matrix::{Matrix, Matrix3x3, Matrix4x4},
-        traits::{Array2D, Fill, Identity, Transpose},
-        vector::Vector,
-    };
-
-    impl<T, const ROWS: usize, const COLUMNS: usize> std::fmt::Debug for Matrix<T, ROWS, COLUMNS>
-    where
-        T: Clone + Copy,
-    {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "")
-        }
-    }
+    use rusty_math::rusty_maths::{vector::Vector, matrix::{Matrix, Matrix3x3, Matrix4x4}, traits::{Array2D, Fill, Transpose, Identity}};
 
     #[test]
     pub fn new() {
@@ -296,7 +282,7 @@ mod matrix_tests {
 
 #[cfg(test)]
 mod vector_tests {
-    use crate::rusty_maths::vector::{Vector, Vector2, Vector2Int};
+    use rusty_math::rusty_maths::vector::{Vector, Vector2Int, Vector2};
 
     #[test]
     fn new() {
