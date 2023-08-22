@@ -7,8 +7,57 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug",
-            "program": "${workspaceFolder}/<executable file>",
+            "name": "Debug unit tests in library 'rusty_math'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=rusty_math"
+                ],
+                "filter": {
+                    "name": "rusty_math",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'unit_vector_tests'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=unit_vector_tests",
+                    "--package=rusty_math"
+                ],
+                "filter": {
+                    "name": "unit_vector_tests",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'unit_matrix_tests'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=unit_matrix_tests",
+                    "--package=rusty_math"
+                ],
+                "filter": {
+                    "name": "unit_matrix_tests",
+                    "kind": "test"
+                }
+            },
             "args": [],
             "cwd": "${workspaceFolder}"
         }
