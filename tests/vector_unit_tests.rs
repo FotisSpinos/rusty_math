@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod vector_tests {
-    use rusty_math::{Vector, Vector2Int, Vector2};
+    use rusty_math::{Vector, Vector2Int, Vector2, Vector3};
 
     #[test]
     fn new() {
@@ -108,5 +108,25 @@ mod vector_tests {
         vector /= 2.0;
 
         assert_eq!(vector.components, [1.0, 2.0]);
+    }
+
+    #[test]
+    fn index() {
+        let vector = Vector3::new([1.0, 2.0, 3.0]);
+        assert_eq!(vector[0], 1.0);
+        assert_eq!(vector[1], 2.0);
+        assert_eq!(vector[2], 3.0);
+    }
+
+    #[test]
+    fn index_mut() {
+        let mut vector = Vector3::new([1.0, 2.0, 3.0]);
+        vector[0] = 0.0;
+        vector[1] = 0.0;
+        vector[2] = 0.0;
+
+        assert_eq!(vector[0], 0.0);
+        assert_eq!(vector[1], 0.0);
+        assert_eq!(vector[2], 0.0);
     }
 }

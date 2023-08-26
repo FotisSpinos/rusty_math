@@ -1,6 +1,6 @@
 pub mod vector {
     use num::{one, traits::Pow, zero, Num, Zero};
-    use std::ops::{Add, AddAssign, Sub, SubAssign, Div, DivAssign, Mul, MulAssign};
+    use std::ops::{Add, AddAssign, Sub, SubAssign, Div, DivAssign, Mul, MulAssign, Index, IndexMut};
 
     pub type Vector2 = Vector<f32, 2>;
     pub type Vector3 = Vector<f32, 3>;
@@ -191,5 +191,21 @@ pub mod vector {
         fn ne(&self, other: &Self) -> bool {
             !self.eq(other)
         }
+    }
+
+    impl<T, const SIZE: usize> Index<usize> for Vector<T, SIZE>
+    {
+        type Output = T;
+
+        fn index(&self, index: usize) -> &Self::Output {
+            &self.components[index]
+        }
+    }
+    impl<T, const SIZE: usize> IndexMut<usize> for Vector<T, SIZE>
+    {
+        fn index_mut(&mut self, index: usize) -> &mut T {
+            &mut self.components[index]
+        }
+
     }
 }
