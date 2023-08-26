@@ -54,12 +54,28 @@ mod vector_tests {
     }
 
     #[test]
+    fn add_assign() {
+        let mut vector = Vector2::new([2.0, 3.0]);
+        vector += Vector2::new([3.0, 2.0]);
+
+        assert_eq!(vector.components, [5.0, 5.0]);
+    }
+
+    #[test]
     fn sub() {
         let _lhs = Vector2::new([2.0, 3.0]);
         let _rhs = Vector2::new([3.0, 2.0]);
         let result = _lhs - _rhs;
 
         assert_eq!(result.components, [-1.0, 1.0]);
+    }
+
+    #[test]
+    fn sub_assign() {
+        let mut vector = Vector2::new([2.0, 3.0]);
+        vector -= Vector2::new([3.0, 2.0]);
+
+        assert_eq!(vector.components, [-1.0, 1.0]);
     }
 
     #[test]
@@ -71,10 +87,26 @@ mod vector_tests {
     }
 
     #[test]
+    fn scalar_mul_assign() {
+        let mut vector = Vector2::new([1.0, 2.0]);
+        vector *= 2.0;
+
+        assert_eq!(vector.components, [2.0, 4.0]);
+    }
+
+    #[test]
     fn scalar_div() {
         let vector = Vector2::new([2.0, 4.0]);
         let result = vector / 2.0;
 
         assert_eq!(result.components, [1.0, 2.0]);
+    }
+
+    #[test]
+    fn scalar_div_assign() {
+        let mut vector = Vector2::new([2.0, 4.0]);
+        vector /= 2.0;
+
+        assert_eq!(vector.components, [1.0, 2.0]);
     }
 }

@@ -1,5 +1,9 @@
 pub mod matrix {
 
+    pub type SquareMatrix<T, const SIZE: usize> = Matrix<T, SIZE, SIZE>;
+    pub type Matrix3x3<T> = SquareMatrix<T, 3>;
+    pub type Matrix4x4<T> = SquareMatrix<T, 4>;
+
     use num::{one, zero, Num, Zero};
 
     use std::{
@@ -357,8 +361,4 @@ pub mod matrix {
             true
         }
     }
-
-    pub type Matrix3x3<T> = Matrix<T, 3, 3>;
-    pub type Matrix4x4<T> = Matrix<T, 4, 4>;
-    pub type SymmetricalMatrix<T, const SIZE: usize> = Matrix<T, SIZE, SIZE>;
 }

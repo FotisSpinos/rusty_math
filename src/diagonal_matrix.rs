@@ -7,7 +7,7 @@ pub mod diagonal_matrix {
     use crate::{Vector, rusty_maths::traits::Grid2D, Matrix};
 
     pub struct DiagonalMatrix<T, const SIZE: usize> {
-        pub components: [T; SIZE],
+        pub diagonal_components: [T; SIZE],
     }
 
     impl<ComponentType, const SIZE: usize> Grid2D<ComponentType, SIZE, SIZE>
@@ -19,7 +19,7 @@ pub mod diagonal_matrix {
         type TransposeType = Self;
 
         fn fill(value: ComponentType) -> Self {
-            let mut components = [zero(); SIZE];
+            let components = [zero(); SIZE];
             components.into_iter().for_each(|mut component: ComponentType| {
                 component = value
             });
@@ -62,7 +62,7 @@ pub mod diagonal_matrix {
 
     impl<T, const SIZE: usize> DiagonalMatrix<T, SIZE> {
         pub fn new(components: [T; SIZE]) -> Self {
-            DiagonalMatrix { components }
+            DiagonalMatrix { diagonal_components: components }
         }
 
         pub fn fill(mut self, value: T)
@@ -70,7 +70,7 @@ pub mod diagonal_matrix {
             T: Clone,
         {
             for i in 0..SIZE {
-                self.components[i] = value.clone();
+                self.diagonal_components[i] = value.clone();
             }
         }
     }
@@ -85,7 +85,7 @@ pub mod diagonal_matrix {
             let mut components = [one::<T>(); SIZE];
 
             for i in 0..SIZE {
-                components[i] = self.components[i] + rhs.components[i];
+                components[i] = self.diagonal_components[i] + rhs.diagonal_components[i];
             }
 
             DiagonalMatrix::new(components)
@@ -102,7 +102,7 @@ pub mod diagonal_matrix {
             let mut output = rhs.clone();
 
             for i in 0..SIZE {
-                output.components[i][i] = output.components[i][i] + self.components[i];
+                output.components[i][i] = output.components[i][i] + self.diagonal_components[i];
             }
 
             output
@@ -120,7 +120,7 @@ pub mod diagonal_matrix {
             let mut output = self.clone();
 
             for i in 0..SIZE {
-                output.components[i] = output.components[i] * rhs;
+                output.diagonal_components[i] = output.diagonal_components[i] * rhs;
             }
 
             output
@@ -138,7 +138,7 @@ pub mod diagonal_matrix {
             let mut output = self.clone();
 
             for i in 0..SIZE {
-                output.components[i] = output.components[i] * rhs.components[i];
+                output.diagonal_components[i] = output.diagonal_components[i] * rhs.diagonal_components[i];
             }
 
             output
@@ -152,7 +152,7 @@ pub mod diagonal_matrix {
     {
         fn add_assign(&mut self, rhs: Self) {
             for i in 0..SIZE {
-                self.components[i] = self.components[i] + rhs.components[i];
+                self.diagonal_components[i] = self.diagonal_components[i] + rhs.diagonal_components[i];
             }
         }
     }
@@ -167,7 +167,7 @@ pub mod diagonal_matrix {
             let mut components = [one::<T>(); SIZE];
 
             for i in 0..SIZE {
-                components[i] = self.components[i] - rhs.components[i];
+                components[i] = self.diagonal_components[i] - rhs.diagonal_components[i];
             }
 
             DiagonalMatrix::new(components)
@@ -184,7 +184,7 @@ pub mod diagonal_matrix {
             let mut output = rhs.clone();
 
             for i in 0..SIZE {
-                output.components[i][i] = output.components[i][i] - self.components[i];
+                output.components[i][i] = output.components[i][i] - self.diagonal_components[i];
             }
 
             output
@@ -198,7 +198,7 @@ pub mod diagonal_matrix {
     {
         fn sub_assign(&mut self, rhs: Self) {
             for i in 0..SIZE {
-                self.components[i] = self.components[i] - rhs.components[i];
+                self.diagonal_components[i] = self.diagonal_components[i] - rhs.diagonal_components[i];
             }
         }
     }

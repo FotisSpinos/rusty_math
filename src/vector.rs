@@ -1,6 +1,6 @@
 pub mod vector {
     use num::{one, traits::Pow, zero, Num, Zero};
-    use std::ops::{Add, Div, Mul, Sub};
+    use std::ops::{Add, AddAssign, Sub, SubAssign, Div, DivAssign, Mul, MulAssign};
 
     pub type Vector2 = Vector<f32, 2>;
     pub type Vector3 = Vector<f32, 3>;
@@ -13,87 +13,6 @@ pub mod vector {
     #[derive(Copy, Clone, Debug)]
     pub struct Vector<T, const SIZE: usize> {
         pub components: [T; SIZE],
-    }
-
-    impl<T, const SIZE: usize> Div<T> for Vector<T, SIZE>
-    where
-        T: Div<Output = T> + Zero + Copy,
-    {
-        type Output = Vector<T, SIZE>;
-
-        fn div(self, rhs: T) -> Self::Output {
-            let mut components = [zero::<T>(); SIZE];
-
-            for i in 0..SIZE {
-                components[i] = self.components[i] / rhs;
-            }
-
-            Vector::<T, SIZE>::new(components)
-        }
-    }
-
-    impl<T, const SIZE: usize> Sub<Vector<T, SIZE>> for Vector<T, SIZE>
-    where
-        T: Sub<Output = T> + Zero + Copy,
-    {
-        type Output = Vector<T, SIZE>;
-
-        fn sub(self, rhs: Self) -> Self::Output {
-            let mut components = [zero::<T>(); SIZE];
-
-            for i in 0..SIZE {
-                components[i] = self.components[i] - rhs.components[i];
-            }
-
-            Vector::<T, SIZE>::new(components)
-        }
-    }
-
-    impl<T, const SIZE: usize> PartialEq for Vector<T, SIZE>
-    where
-        T: PartialEq,
-    {
-        fn eq(&self, other: &Self) -> bool {
-            self.components == other.components
-        }
-
-        fn ne(&self, other: &Self) -> bool {
-            !self.eq(other)
-        }
-    }
-
-    impl<T, const SIZE: usize> Mul<T> for Vector<T, SIZE>
-    where
-        T: Mul<Output = T> + Zero + Copy,
-    {
-        type Output = Vector<T, SIZE>;
-
-        fn mul(self, rhs: T) -> Self::Output {
-            let mut components = [zero::<T>(); SIZE];
-
-            for i in 0..SIZE {
-                components[i] = self.components[i] * rhs;
-            }
-
-            Vector::<T, SIZE>::new(components)
-        }
-    }
-
-    impl<T, const SIZE: usize> Add<Vector<T, SIZE>> for Vector<T, SIZE>
-    where
-        T: Add<Output = T> + Zero + Copy,
-    {
-        type Output = Vector<T, SIZE>;
-
-        fn add(self, rhs: Self) -> Self::Output {
-            let mut components = [zero::<T>(); SIZE];
-
-            for i in 0..SIZE {
-                components[i] = self.components[i] + rhs.components[i];
-            }
-
-            Vector::<T, SIZE> { components }
-        }
     }
 
     impl<T, const SIZE: usize> Vector<T, SIZE> {
@@ -154,6 +73,123 @@ pub mod vector {
                 + Add<Vector<T, SIZE>, Output = Vector<T, SIZE>>,
         {
             y + (x * a)
+        }
+    }
+
+    impl<T, const SIZE: usize> Add<Vector<T, SIZE>> for Vector<T, SIZE>
+    where
+        T: Add<Output = T> + Zero + Copy,
+    {
+        type Output = Vector<T, SIZE>;
+
+        fn add(self, rhs: Self) -> Self::Output {
+            let mut components = [zero::<T>(); SIZE];
+
+            for i in 0..SIZE {
+                components[i] = self.components[i] + rhs.components[i];
+            }
+
+            Vector::<T, SIZE> { components }
+        }
+    }
+
+    impl<T, const SIZE: usize> AddAssign for Vector<T, SIZE>
+    where
+        Vector<T, SIZE>: Add<Output = Vector<T, SIZE>> + Clone
+    {
+        fn add_assign(&mut self, rhs: Self) {
+            self.components = (self.clone() + rhs).components
+        }
+    }
+
+    impl<T, const SIZE: usize> Sub<Vector<T, SIZE>> for Vector<T, SIZE>
+    where
+        T: Sub<Output = T> + Zero + Copy,
+    {
+        type Output = Vector<T, SIZE>;
+
+        fn sub(self, rhs: Self) -> Self::Output {
+            let mut components = [zero::<T>(); SIZE];
+
+            for i in 0..SIZE {
+                components[i] = self.components[i] - rhs.components[i];
+            }
+
+            Vector::<T, SIZE>::new(components)
+        }
+    }
+
+    impl<T, const SIZE: usize> SubAssign<Vector<T, SIZE>> for Vector<T, SIZE>
+    where 
+        Vector<T, SIZE>: Sub<Output = Vector<T, SIZE>> + Clone
+    {
+        fn sub_assign(&mut self, rhs: Vector<T, SIZE>) {
+            self.components = (self.clone() - rhs).components
+        }
+    }
+
+    impl<T, const SIZE: usize> Mul<T> for Vector<T, SIZE>
+    where
+        T: Mul<Output = T> + Zero + Copy,
+    {
+        type Output = Vector<T, SIZE>;
+
+        fn mul(self, rhs: T) -> Self::Output {
+            let mut components = [zero::<T>(); SIZE];
+
+            for i in 0..SIZE {
+                components[i] = self.components[i] * rhs;
+            }
+
+            Vector::<T, SIZE>::new(components)
+        }
+    }
+
+    impl<T, const SIZE: usize> MulAssign<T> for Vector<T, SIZE>
+    where
+        T: Mul<Output = T> + Zero + Copy,
+    {
+        fn mul_assign(&mut self, rhs: T) {
+            self.components = (self.clone() * rhs).components
+        }
+    }
+
+    impl<T, const SIZE: usize> Div<T> for Vector<T, SIZE>
+    where
+        T: Div<Output = T> + Zero + Copy,
+    {
+        type Output = Vector<T, SIZE>;
+
+        fn div(self, rhs: T) -> Self::Output {
+            let mut components = [zero::<T>(); SIZE];
+
+            for i in 0..SIZE {
+                components[i] = self.components[i] / rhs;
+            }
+
+            Vector::<T, SIZE>::new(components)
+        }
+    }
+
+    impl<T, const SIZE: usize> DivAssign<T> for Vector<T, SIZE>
+    where
+        T: Div<Output = T> + Zero + Copy,
+    {
+        fn div_assign(&mut self, rhs: T) {
+            self.components = (self.clone() / rhs).components
+        }
+    }
+
+    impl<T, const SIZE: usize> PartialEq for Vector<T, SIZE>
+    where
+        T: PartialEq,
+    {
+        fn eq(&self, other: &Self) -> bool {
+            self.components == other.components
+        }
+
+        fn ne(&self, other: &Self) -> bool {
+            !self.eq(other)
         }
     }
 }

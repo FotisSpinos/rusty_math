@@ -281,7 +281,7 @@ mod matrix_tests {
 
 #[cfg(test)]
 mod vector_tests {
-    use rusty_math::{Vector, Vector2Int, Vector2};
+    use rusty_math::{Vector, Vector2Int, Vector2, SquareMatrix, rusty_maths::traits::Grid2D};
 
     #[test]
     fn new() {
@@ -357,5 +357,12 @@ mod vector_tests {
         let result = vector / 2.0;
 
         assert_eq!(result.components, [1.0, 2.0]);
+    }
+
+    #[test]
+    fn square_matrix() {
+        let square_matrix = SquareMatrix::<usize, 3>::fill(0);
+
+        assert_eq!(square_matrix.columns(), square_matrix.rows());
     }
 }
