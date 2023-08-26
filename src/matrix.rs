@@ -1,6 +1,6 @@
     pub mod matrix {
 
-        use num::{one, zero, Num, One, Zero};
+        use num::{one, zero, Num, Zero};
 
         use std::{
             cmp::PartialEq,
@@ -9,7 +9,7 @@
             },
         };
 
-        use crate::{Vector, rusty_maths::traits::{Array2D, Transpose, Fill, Identity}};
+        use crate::{Vector, rusty_maths::traits::Grid2D};
 
         #[derive(Debug, Copy, Clone)]
         pub struct Matrix<T, const ROWS: usize, const COLUMNS: usize>
@@ -48,11 +48,24 @@
             }
         }
 
-        impl<T, const ROWS: usize, const COLUMNS: usize> Array2D<T, ROWS, COLUMNS>
+        impl<T, const ROWS: usize, const COLUMNS: usize> Grid2D<T, ROWS, COLUMNS>
             for Matrix<T, ROWS, COLUMNS>
         where
             T: Clone + Copy + Num,
         {
+            type TransposeType = Matrix<T, COLUMNS, ROWS>;
+            fn fill(value: T) -> Self {
+                let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
+
+                for rows in components.iter_mut().take(ROWS) {
+                    for columns in rows.iter_mut().take(COLUMNS) {
+                        *columns = value;
+                    }
+                }
+
+                Matrix::new(components)
+            }
+
             fn column(&self, index: usize) -> Vector<T, ROWS> {
                 let mut output = [zero::<T>(); ROWS];
 
@@ -82,14 +95,18 @@
             fn rows(&self) -> usize {
                 ROWS
             }
-        }
 
-        impl<T, const ROWS: usize, const COLUMNS: usize> Transpose<Matrix<T, COLUMNS, ROWS>>
-            for Matrix<T, ROWS, COLUMNS>
-        where
-            T: Clone + Copy + Num,
-        {
-            fn transpose(&self) -> Matrix<T, COLUMNS, ROWS> {
+            fn identity() -> Self {
+                let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
+
+                for row in 0..ROWS {
+                    components[row][row] = one::<T>();
+                }
+
+                Matrix::new(components)
+            }
+
+            fn transpose(&self) -> Self::TransposeType {
                 let mut output = Matrix::<T, COLUMNS, ROWS>::zero();
 
                 for y in 0..ROWS {
@@ -99,40 +116,6 @@
                 }
 
                 output
-            }
-        }
-
-        impl<T, const ROWS: usize, const COLUMNS: usize> Fill<Matrix<T, ROWS, COLUMNS>, T>
-            for Matrix<T, ROWS, COLUMNS>
-        where
-            T: Clone + Copy + Num,
-        {
-            fn fill(value: T) -> Self {
-                let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
-
-                for rows in components.iter_mut().take(ROWS) {
-                    for columns in rows.iter_mut().take(COLUMNS) {
-                        *columns = value;
-                    }
-                }
-
-                Matrix::new(components)
-            }
-        }
-
-        impl<T, const ROWS: usize, const COLUMNS: usize> Identity<Matrix<T, ROWS, COLUMNS>>
-            for Matrix<T, ROWS, COLUMNS>
-        where
-            T: Clone + Copy + Num,
-        {
-            fn identity() -> Self {
-                let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
-
-                for row in 0..ROWS {
-                    components[row][row] = one::<T>();
-                }
-
-                Matrix::new(components)
             }
         }
 
@@ -383,6 +366,52 @@
             pub components: [T; SIZE],
         }
 
+        impl<ComponentType, const SIZE: usize> Grid2D<ComponentType, SIZE, SIZE>
+        for DiagonalMatrix<ComponentType, SIZE>
+        where
+            ComponentType: Clone + Copy + Num,
+        {
+
+            type TransposeType = Self;
+
+            fn fill(value: ComponentType) -> Self {
+                todo!()
+            }
+
+            fn column(&self, index: usize) -> Vector<ComponentType, SIZE> {
+                todo!()
+            }
+
+            fn columns(&self) -> usize {
+                todo!()
+            }
+
+            fn components(&self) -> [[ComponentType; SIZE]; SIZE] {
+                todo!()
+            }
+
+            fn len(&self) -> usize {
+                todo!()
+            }
+
+            fn row(&self, index: usize) -> Vector<ComponentType, SIZE> {
+                todo!()
+            }
+
+            fn rows(&self) -> usize {
+                todo!()
+            }
+
+            fn identity() -> Self {
+                let components = [one::<ComponentType>(); SIZE];
+                DiagonalMatrix::new(components)
+            }
+
+            fn transpose(&self) -> Self::TransposeType {
+                todo!()
+            }
+        }
+
         impl<T, const SIZE: usize> DiagonalMatrix<T, SIZE> {
             pub fn new(components: [T; SIZE]) -> Self {
                 DiagonalMatrix { components }
@@ -398,6 +427,7 @@
             }
         }
 
+        /*
         impl<T, const SIZE: usize> Identity<DiagonalMatrix<T, SIZE>> for DiagonalMatrix<T, SIZE>
         where
             T: Num + One + Copy,
@@ -406,7 +436,8 @@
                 let components = [one::<T>(); SIZE];
                 DiagonalMatrix::new(components)
             }
-        }
+        } 
+        */
 
         impl<T, const SIZE: usize> Add for DiagonalMatrix<T, SIZE>
         where

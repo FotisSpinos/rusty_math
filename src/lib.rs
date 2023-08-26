@@ -9,22 +9,11 @@ pub mod rusty_maths {
     pub mod traits {
         use crate::Vector;
 
-        pub trait Transpose<ReturnType> {
-            fn transpose(&self) -> ReturnType;
-        }
+        pub trait Grid2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
+            type TransposeType;
 
-        pub trait Fill<ReturnType, FillType>
-        where
-            FillType: num::Num,
-        {
-            fn fill(value: FillType) -> ReturnType;
-        }
+            fn fill(value: ComponentType) -> Self;
 
-        pub trait Identity<ReturnType> {
-            fn identity() -> ReturnType;
-        }
-
-        pub trait Array2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
             fn column(&self, index: usize) -> Vector<ComponentType, ROWS>;
 
             fn columns(&self) -> usize;
@@ -36,6 +25,10 @@ pub mod rusty_maths {
             fn row(&self, index: usize) -> Vector<ComponentType, COLUMNS>;
 
             fn rows(&self) -> usize;
+
+            fn identity() -> Self;
+
+            fn transpose(&self) -> Self::TransposeType;
         }
     }
 
