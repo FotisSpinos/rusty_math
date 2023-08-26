@@ -9,7 +9,7 @@ pub mod matrix {
         },
     };
 
-    use crate::{Vector, rusty_maths::traits::Grid2D};
+    use crate::{rusty_maths::traits::Grid2D, vector::vector::Vector};
 
     #[derive(Debug, Copy, Clone)]
     pub struct Matrix<T, const ROWS: usize, const COLUMNS: usize>

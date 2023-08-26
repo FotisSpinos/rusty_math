@@ -1,15 +1,10 @@
-pub mod matrix {
+pub mod diagonal_matrix {
 
-    use num::{one, zero, Num, Zero};
+    use std::ops::{SubAssign, Add, Sub, AddAssign, Mul};
 
-    use std::{
-        cmp::PartialEq,
-        ops::{
-            Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign,
-        },
-    };
+    use num::{Num, one, zero};
 
-    use crate::{Vector, rusty_maths::traits::Grid2D};
+    use crate::{Vector, rusty_maths::traits::Grid2D, Matrix};
 
     pub struct DiagonalMatrix<T, const SIZE: usize> {
         pub components: [T; SIZE],
@@ -24,7 +19,11 @@ pub mod matrix {
         type TransposeType = Self;
 
         fn fill(value: ComponentType) -> Self {
-            todo!()
+            let mut components = [zero(); SIZE];
+            components.into_iter().for_each(|mut component: ComponentType| {
+                component = value
+            });
+            DiagonalMatrix::new(components)
         }
 
         fn column(&self, index: usize) -> Vector<ComponentType, SIZE> {
@@ -32,7 +31,7 @@ pub mod matrix {
         }
 
         fn columns(&self) -> usize {
-            todo!()
+            SIZE
         }
 
         fn components(&self) -> [[ComponentType; SIZE]; SIZE] {
@@ -40,7 +39,7 @@ pub mod matrix {
         }
 
         fn len(&self) -> usize {
-            todo!()
+            SIZE * SIZE
         }
 
         fn row(&self, index: usize) -> Vector<ComponentType, SIZE> {
