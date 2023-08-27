@@ -60,7 +60,7 @@ pub mod vector {
             square_sum.pow(0.5)
         }
 
-        pub fn unit(self) -> Self
+        pub fn to_unit(self) -> Self
         where
             T: Num + Copy + Pow<f32, Output = T>,
         {
@@ -201,6 +201,7 @@ pub mod vector {
             &self.components[index]
         }
     }
+
     impl<T, const SIZE: usize> IndexMut<usize> for Vector<T, SIZE>
     {
         fn index_mut(&mut self, index: usize) -> &mut T {

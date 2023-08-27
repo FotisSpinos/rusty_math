@@ -18,16 +18,6 @@ mod vector_tests {
     }
 
     #[test]
-    fn axpy() {
-        let a = 2;
-        let x = Vector2Int::new([1, 1]);
-        let y = Vector2Int::new([5, 5]);
-
-        let result = Vector2Int::axpy(a, x, y);
-        assert_eq!(result.components, [7, 7]);
-    }
-
-    #[test]
     fn dot() {
         let _lhs = Vector2Int::new([10, 5]);
         let _rhs = Vector2Int::new([5, 10]);
@@ -37,11 +27,35 @@ mod vector_tests {
     }
 
     #[test]
+    fn unit_bases() {
+        let vector = Vector::<usize, 3>::unit_bases(1);
+        assert_eq!(vector.components, [0,1,0]);
+    }
+
+    #[test]
     fn magnitude() {
         let vector = Vector2::new([4.0, 3.0]);
-        let length = vector.magnitude();
+        let magnitude = vector.magnitude();
 
-        assert_eq!(length, 5.0);
+        assert_eq!(magnitude, 5.0);
+    }
+
+    #[test]
+    fn to_unit() {
+        let vector = Vector2::new([1.0, 1.0]);
+        let unit_vector = vector.to_unit();
+
+        assert_eq!(unit_vector.components, [1.0 / f32::sqrt(2.0), 1.0 / f32::sqrt(2.0)]);
+    }
+
+    #[test]
+    fn axpy() {
+        let a = 2;
+        let x = Vector2Int::new([1, 1]);
+        let y = Vector2Int::new([5, 5]);
+
+        let result = Vector2Int::axpy(a, x, y);
+        assert_eq!(result.components, [7, 7]);
     }
 
     #[test]
