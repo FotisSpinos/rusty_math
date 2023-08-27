@@ -1,9 +1,8 @@
-mod matrix;
-mod vector;
-mod diagonal_matrix;
+pub mod matrix;
+pub mod vector;
 
 pub use matrix::matrix::*;
-pub use diagonal_matrix::diagonal_matrix::*;
+pub use matrix::diagonal_matrix::*;
 pub use vector::vector::*;
 
 pub mod rusty_maths {
