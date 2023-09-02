@@ -11,7 +11,7 @@ use std::{
     },
 };
 
-use crate::{rusty_maths::traits::{Grid2D, Fillable}, vector::vector::Vector};
+use crate::{traits::{Grid2D, Fillable}, vector::vector::Vector};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Matrix<T, const ROWS: usize, const COLUMNS: usize>
@@ -27,6 +27,17 @@ where
 {
     pub fn new(components: [[T; COLUMNS]; ROWS]) -> Self {
         Matrix::<T, ROWS, COLUMNS> { components }
+    }
+
+    pub fn pow(matrix: Self, exponent: usize) -> Self
+    where Self : Mul<Self, Output = Self> {
+        let mut current = matrix;
+
+        (0..exponent - 1).for_each(|_: usize| {
+            current = current * matrix;
+        });
+
+        current
     }
 
     pub fn diagonal_matrix_mul(lhs: Self, rhs: Vector<T, COLUMNS>) -> Vector<T, ROWS>

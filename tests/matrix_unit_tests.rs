@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod matrix_tests {
     use num::Zero;
-    use rusty_math::{Matrix, rusty_maths::traits::Grid2D, Vector, Matrix3x3, Matrix4x4};
+    use rusty_math::{Matrix, traits::*, Vector, Matrix3x3, Matrix4x4};
 
     #[test]
     pub fn new() {
@@ -11,6 +11,14 @@ mod matrix_tests {
         assert_eq!(matrix.rows(), 2);
         assert_eq!(matrix.columns(), 3);
         assert_eq!(matrix.components, components);
+    }
+
+    #[test]
+    pub fn pow() {
+        let matrix = Matrix::<usize, 3, 3>::identity() * 2;
+        let result = Matrix::<usize, 3, 3>::pow(matrix, 3);
+
+        assert_eq!(result, Matrix::<usize, 3, 3>::identity() * 8);
     }
 
     #[test]
