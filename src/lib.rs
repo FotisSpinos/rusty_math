@@ -10,10 +10,12 @@ pub mod rusty_maths {
     pub mod traits {
         use crate::Vector;
 
-        pub trait Grid2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
-            type TransposeType;
+        pub trait Fillable<FillValueType> {
+            fn fill(value: FillValueType) -> Self;
+        }
 
-            fn fill(value: ComponentType) -> Self;
+        pub trait Grid2D<ComponentType, const ROWS: usize, const COLUMNS: usize> : Fillable<ComponentType> {
+            type TransposeType;
 
             fn column(&self, index: usize) -> Vector<ComponentType, ROWS>;
 

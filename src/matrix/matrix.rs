@@ -11,7 +11,7 @@ use std::{
     },
 };
 
-use crate::{rusty_maths::traits::Grid2D, vector::vector::Vector};
+use crate::{rusty_maths::traits::{Grid2D, Fillable}, vector::vector::Vector};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Matrix<T, const ROWS: usize, const COLUMNS: usize>
@@ -56,17 +56,6 @@ where
     T: Clone + Copy + Num,
 {
     type TransposeType = Matrix<T, COLUMNS, ROWS>;
-    fn fill(value: T) -> Self {
-        let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
-
-        for rows in components.iter_mut().take(ROWS) {
-            for columns in rows.iter_mut().take(COLUMNS) {
-                *columns = value;
-            }
-        }
-
-        Matrix::new(components)
-    }
 
     fn column(&self, index: usize) -> Vector<T, ROWS> {
         let mut output = [zero::<T>(); ROWS];
@@ -118,6 +107,24 @@ where
         }
 
         output
+    }
+}
+
+impl<T, const ROWS: usize, const COLUMNS: usize> Fillable<T> for Matrix<T, ROWS, COLUMNS>
+where
+    T: Clone + Copy + Num
+{
+
+    fn fill(value: T) -> Self {
+        let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
+
+        for rows in components.iter_mut().take(ROWS) {
+            for columns in rows.iter_mut().take(COLUMNS) {
+                *columns = value;
+            }
+        }
+
+        Matrix::new(components)
     }
 }
 

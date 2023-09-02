@@ -1,8 +1,8 @@
 use std::ops::{SubAssign, Add, Sub, AddAssign, Mul};
 
-use num::{Num, one, zero};
+use num::{Num, Zero, one, zero};
 
-use crate::{Vector, rusty_maths::traits::Grid2D};
+use crate::{Vector, rusty_maths::traits::{Grid2D, Fillable}};
 
 use super::matrix::Matrix;
 
@@ -17,14 +17,6 @@ where
 {
 
     type TransposeType = Self;
-
-    fn fill(value: ComponentType) -> Self {
-        let components = [zero(); SIZE];
-        components.into_iter().for_each(|mut component: ComponentType| {
-            component = value
-        });
-        DiagonalMatrix::new(components)
-    }
 
     fn column(&self, index: usize) -> Vector<ComponentType, SIZE> {
         todo!()
@@ -57,6 +49,18 @@ where
 
     fn transpose(&self) -> Self::TransposeType {
         todo!()
+    }
+}
+
+impl<ComponentType, const SIZE: usize> Fillable<ComponentType> for DiagonalMatrix<ComponentType, SIZE>
+where ComponentType: Zero + std::marker::Copy {
+
+    fn fill(value: ComponentType) -> Self {
+        let components = [zero(); SIZE];
+        components.into_iter().for_each(|mut _component: ComponentType| {
+            _component = value
+        });
+        DiagonalMatrix::new(components)
     }
 }
 
