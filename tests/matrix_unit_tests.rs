@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod matrix_tests {
     use num::Zero;
-    use rusty_math::{Matrix, Matrix3x3, Matrix4x4, vector::vector::Vector, traits::*};
+    use rusty_math::{Matrix, Matrix3x3, Matrix4x4, vector::Vector, traits::*};
 
     #[test]
     pub fn new() {

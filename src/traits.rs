@@ -1,4 +1,4 @@
-use crate::vector::vector::Vector;
+use crate::vector::Vector;
 
 pub trait Fillable<FillValueType> {
     fn fill(value: FillValueType) -> Self;
