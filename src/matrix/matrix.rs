@@ -1,44 +1,40 @@
-pub type SquareMatrix<T, const SIZE: usize> = Matrix<T, SIZE, SIZE>;
-pub type Matrix3x3<T> = SquareMatrix<T, 3>;
-pub type Matrix4x4<T> = SquareMatrix<T, 4>;
+pub type SquareMatrix<ComponentType, const SIZE: usize> = Matrix<ComponentType, SIZE, SIZE>;
+pub type Matrix3x3<ComponentType> = SquareMatrix<ComponentType, 3>;
+pub type Matrix4x4<ComponentType> = SquareMatrix<ComponentType, 4>;
 
 use num::{one, zero, Num, Zero};
 
 use std::{
     cmp::PartialEq,
-    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
+    ops::{
+        Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign,
+    },
 };
 
-use crate::{
-    traits::{Fillable, Grid2D, Transposable},
-    vector::vector::Vector,
-};
+use crate::{traits::{Grid2D, Fillable, Transposable}, vector::vector::Vector};
 
-trait MatrixTrait<T, const ROWS: usize, const COLUMNS: usize>:
-    Transposable + Fillable<T> + Grid2D<T, ROWS, COLUMNS>
-{
+trait MatrixTrait<ComponentType, const ROWS: usize, const COLUMNS: usize> : Transposable + Fillable<ComponentType> + Grid2D<ComponentType, ROWS, COLUMNS> {
+
 }
 
 #[derive(Debug, Copy, Clone)]
-pub struct Matrix<T, const ROWS: usize, const COLUMNS: usize>
+pub struct Matrix<ComponentType, const ROWS: usize, const COLUMNS: usize>
 where
-    T: Clone,
+    ComponentType: Clone,
 {
-    pub components: [[T; COLUMNS]; ROWS],
+    pub components: [[ComponentType; COLUMNS]; ROWS],
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Clone + Copy,
+    ComponentType: Clone + Copy,
 {
-    pub fn new(components: [[T; COLUMNS]; ROWS]) -> Self {
-        Matrix::<T, ROWS, COLUMNS> { components }
+    pub fn new(components: [[ComponentType; COLUMNS]; ROWS]) -> Self {
+        Matrix::<ComponentType, ROWS, COLUMNS> { components }
     }
 
     pub fn pow(matrix: Self, exponent: usize) -> Self
-    where
-        Self: Mul<Self, Output = Self>,
-    {
+    where Self : Mul<Self, Output = Self> {
         let mut current = matrix;
 
         (0..exponent - 1).for_each(|_: usize| {
@@ -48,11 +44,11 @@ where
         current
     }
 
-    pub fn diagonal_matrix_mul(lhs: Self, rhs: Vector<T, COLUMNS>) -> Vector<T, ROWS>
+    pub fn diagonal_matrix_mul(lhs: Self, rhs: Vector<ComponentType, COLUMNS>) -> Vector<ComponentType, ROWS>
     where
-        T: Zero + Mul<Output = T>,
+        ComponentType: Zero + Mul<Output = ComponentType>,
     {
-        let mut result = Vector::<T, ROWS>::new([zero(); ROWS]);
+        let mut result = Vector::<ComponentType, ROWS>::new([zero(); ROWS]);
 
         for i in 0..COLUMNS {
             for v in 0..i {
@@ -69,26 +65,26 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Grid2D<T, ROWS, COLUMNS>
-    for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Grid2D<ComponentType, ROWS, COLUMNS>
+    for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Clone + Copy + Num,
+    ComponentType: Clone + Copy + Num,
 {
-    fn column(&self, index: usize) -> Vector<T, ROWS> {
-        let mut output = [zero::<T>(); ROWS];
+    fn column(&self, index: usize) -> Vector<ComponentType, ROWS> {
+        let mut output = [zero::<ComponentType>(); ROWS];
 
         for i in 0..ROWS {
             output[i] = self.components[i][index];
         }
 
-        Vector::<T, ROWS>::new(output)
+        Vector::<ComponentType, ROWS>::new(output)
     }
 
     fn columns(&self) -> usize {
         COLUMNS
     }
 
-    fn components(&self) -> [[T; COLUMNS]; ROWS] {
+    fn components(&self) -> [[ComponentType; COLUMNS]; ROWS] {
         self.components
     }
 
@@ -96,7 +92,7 @@ where
         self.rows() * self.columns()
     }
 
-    fn row(&self, index: usize) -> Vector<T, COLUMNS> {
+    fn row(&self, index: usize) -> Vector<ComponentType, COLUMNS> {
         Vector::new(self.components[index])
     }
 
@@ -105,24 +101,24 @@ where
     }
 
     fn identity() -> Self {
-        let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
+        let mut components: [[ComponentType; COLUMNS]; ROWS] = [[zero::<ComponentType>(); COLUMNS]; ROWS];
 
         for row in 0..ROWS {
-            components[row][row] = one::<T>();
+            components[row][row] = one::<ComponentType>();
         }
 
         Matrix::new(components)
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Transposable for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Transposable for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Clone + Copy + Num,
+    ComponentType: Clone + Copy + Num
 {
-    type Output = Matrix<T, COLUMNS, ROWS>;
+    type Output = Matrix<ComponentType, COLUMNS, ROWS>;
 
     fn transpose(&self) -> Self::Output {
-        let mut output = Matrix::<T, COLUMNS, ROWS>::zero();
+        let mut output = Matrix::<ComponentType, COLUMNS, ROWS>::zero();
 
         for y in 0..ROWS {
             for x in 0..COLUMNS {
@@ -134,12 +130,13 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Fillable<T> for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Fillable<ComponentType> for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Clone + Copy + Num,
+    ComponentType: Clone + Copy + Num
 {
-    fn fill(value: T) -> Self {
-        let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
+
+    fn fill(value: ComponentType) -> Self {
+        let mut components: [[ComponentType; COLUMNS]; ROWS] = [[zero::<ComponentType>(); COLUMNS]; ROWS];
 
         for rows in components.iter_mut().take(ROWS) {
             for columns in rows.iter_mut().take(COLUMNS) {
@@ -151,12 +148,12 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Zero for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Zero for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Clone + Copy + Num,
+    ComponentType: Clone + Copy + Num
 {
     fn zero() -> Self {
-        let components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
+        let components: [[ComponentType; COLUMNS]; ROWS] = [[zero::<ComponentType>(); COLUMNS]; ROWS];
         Matrix::new(components)
     }
 
@@ -166,12 +163,12 @@ where
 
     fn is_zero(&self) -> bool
     where
-        T: PartialEq + num::Zero,
+        ComponentType: PartialEq + num::Zero
     {
         for y in 0..ROWS {
             for x in 0..COLUMNS {
                 if self.components[y][x] != zero() {
-                    return false;
+                    return false
                 }
             }
         }
@@ -179,14 +176,14 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Add for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Add for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
-    type Output = Matrix<T, ROWS, COLUMNS>;
+    type Output = Matrix<ComponentType, ROWS, COLUMNS>;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let mut matrix = Matrix::<T, ROWS, COLUMNS>::zero();
+        let mut matrix = Matrix::<ComponentType, ROWS, COLUMNS>::zero();
 
         for y in 0..ROWS {
             for x in 0..COLUMNS {
@@ -198,9 +195,9 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> AddAssign for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> AddAssign for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
     fn add_assign(&mut self, rhs: Self) {
         for y in 0..ROWS {
@@ -211,14 +208,14 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Sub for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Sub for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
-    type Output = Matrix<T, ROWS, COLUMNS>;
+    type Output = Matrix<ComponentType, ROWS, COLUMNS>;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        let mut matrix = Matrix::<T, ROWS, COLUMNS>::zero();
+        let mut matrix = Matrix::<ComponentType, ROWS, COLUMNS>::zero();
 
         for y in 0..ROWS {
             for x in 0..COLUMNS {
@@ -230,9 +227,9 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> SubAssign for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> SubAssign for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
     fn sub_assign(&mut self, rhs: Self) {
         for y in 0..ROWS {
@@ -243,15 +240,18 @@ where
     }
 }
 
-impl<T, const LHS_ROWS: usize, const LHS_COLUMNS: usize, const RHS_COLUMN: usize>
-    Mul<Matrix<T, LHS_COLUMNS, RHS_COLUMN>> for Matrix<T, LHS_ROWS, LHS_COLUMNS>
+impl<ComponentType, const LHS_ROWS: usize, const LHS_COLUMNS: usize, const RHS_COLUMN: usize>
+    Mul<Matrix<ComponentType, LHS_COLUMNS, RHS_COLUMN>> for Matrix<ComponentType, LHS_ROWS, LHS_COLUMNS>
 where
-    T: Num + Clone + Copy + AddAssign,
+    ComponentType: Num + Clone + Copy + AddAssign,
 {
-    type Output = Matrix<T, LHS_ROWS, RHS_COLUMN>;
+    type Output = Matrix<ComponentType, LHS_ROWS, RHS_COLUMN>;
 
-    fn mul(self, rhs: Matrix<T, LHS_COLUMNS, RHS_COLUMN>) -> Matrix<T, LHS_ROWS, RHS_COLUMN> {
-        let mut matrix = Matrix::<T, LHS_ROWS, RHS_COLUMN>::zero();
+    fn mul(
+        self,
+        rhs: Matrix<ComponentType, LHS_COLUMNS, RHS_COLUMN>,
+    ) -> Matrix<ComponentType, LHS_ROWS, RHS_COLUMN> {
+        let mut matrix = Matrix::<ComponentType, LHS_ROWS, RHS_COLUMN>::zero();
 
         for lhs_row in 0..LHS_ROWS {
             for rhs_column in 0..RHS_COLUMN {
@@ -266,14 +266,14 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Mul<T> for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Mul<ComponentType> for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
-    type Output = Matrix<T, ROWS, COLUMNS>;
+    type Output = Matrix<ComponentType, ROWS, COLUMNS>;
 
-    fn mul(self, scalar: T) -> Self::Output {
-        let mut matrix = Matrix::<T, ROWS, COLUMNS>::zero();
+    fn mul(self, scalar: ComponentType) -> Self::Output {
+        let mut matrix = Matrix::<ComponentType, ROWS, COLUMNS>::zero();
 
         for y in 0..ROWS {
             for x in 0..COLUMNS {
@@ -285,14 +285,14 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Mul<Vector<T, COLUMNS>>
-    for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Mul<Vector<ComponentType, COLUMNS>>
+    for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
-    type Output = Vector<T, ROWS>;
+    type Output = Vector<ComponentType, ROWS>;
 
-    fn mul(self, rhs: Vector<T, COLUMNS>) -> Self::Output {
+    fn mul(self, rhs: Vector<ComponentType, COLUMNS>) -> Self::Output {
         let mut result = Self::Output::new([zero(); ROWS]);
 
         for i in 0..ROWS {
@@ -306,11 +306,11 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> MulAssign<T> for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> MulAssign<ComponentType> for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
-    fn mul_assign(&mut self, scalar: T) {
+    fn mul_assign(&mut self, scalar: ComponentType) {
         for y in 0..ROWS {
             for x in 0..COLUMNS {
                 self.components[y][x] = self.components[y][x] * scalar;
@@ -319,14 +319,14 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Div<T> for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Div<ComponentType> for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
-    type Output = Matrix<T, ROWS, COLUMNS>;
+    type Output = Matrix<ComponentType, ROWS, COLUMNS>;
 
-    fn div(self, scalar: T) -> Self::Output {
-        let mut matrix = Matrix::<T, ROWS, COLUMNS>::zero();
+    fn div(self, scalar: ComponentType) -> Self::Output {
+        let mut matrix = Matrix::<ComponentType, ROWS, COLUMNS>::zero();
 
         for y in 0..ROWS {
             for x in 0..COLUMNS {
@@ -338,11 +338,11 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> DivAssign<T> for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> DivAssign<ComponentType> for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
-    fn div_assign(&mut self, scalar: T) {
+    fn div_assign(&mut self, scalar: ComponentType) {
         for y in 0..ROWS {
             for x in 0..COLUMNS {
                 self.components[y][x] = self.components[y][x] / scalar;
@@ -351,29 +351,29 @@ where
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> Index<usize> for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Index<usize> for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
-    type Output = [T; COLUMNS];
+    type Output = [ComponentType; COLUMNS];
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.components[index]
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> IndexMut<usize> for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> IndexMut<usize> for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.components[index]
     }
 }
 
-impl<T, const ROWS: usize, const COLUMNS: usize> PartialEq for Matrix<T, ROWS, COLUMNS>
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> PartialEq for Matrix<ComponentType, ROWS, COLUMNS>
 where
-    T: Num + Clone + Copy,
+    ComponentType: Num + Clone + Copy,
 {
     fn eq(&self, other: &Self) -> bool {
         for y in 0..ROWS {
