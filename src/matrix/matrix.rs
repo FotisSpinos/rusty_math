@@ -119,9 +119,9 @@ impl<T, const ROWS: usize, const COLUMNS: usize> Transposable for Matrix<T, ROWS
 where
     T: Clone + Copy + Num,
 {
-    type TransposeType = Matrix<T, COLUMNS, ROWS>;
+    type Output = Matrix<T, COLUMNS, ROWS>;
 
-    fn transpose(&self) -> Self::TransposeType {
+    fn transpose(&self) -> Self::Output {
         let mut output = Matrix::<T, COLUMNS, ROWS>::zero();
 
         for y in 0..ROWS {

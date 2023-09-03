@@ -13,9 +13,9 @@ pub mod traits {
     }
 
     pub trait Transposable {
-        type TransposeType;
+        type Output;
 
-        fn transpose(&self) -> Self::TransposeType;
+        fn transpose(&self) -> Self::Output;
     }
 
     pub trait Grid2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
