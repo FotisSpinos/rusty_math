@@ -12,9 +12,13 @@ pub mod traits {
         fn fill(value: FillValueType) -> Self;
     }
 
-    pub trait Grid2D<ComponentType, const ROWS: usize, const COLUMNS: usize> : Fillable<ComponentType> {
+    pub trait Transposable {
         type TransposeType;
 
+        fn transpose(&self) -> Self::TransposeType;
+    }
+
+    pub trait Grid2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
         fn column(&self, index: usize) -> Vector<ComponentType, ROWS>;
 
         fn columns(&self) -> usize;
@@ -28,7 +32,5 @@ pub mod traits {
         fn rows(&self) -> usize;
 
         fn identity() -> Self;
-
-        fn transpose(&self) -> Self::TransposeType;
     }
 }

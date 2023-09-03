@@ -6,12 +6,18 @@ use num::{one, zero, Num, Zero};
 
 use std::{
     cmp::PartialEq,
-    ops::{
-        Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign,
-    },
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
-use crate::{traits::{Grid2D, Fillable}, vector::vector::Vector};
+use crate::{
+    traits::{Fillable, Grid2D, Transposable},
+    vector::vector::Vector,
+};
+
+trait MatrixTrait<T, const ROWS: usize, const COLUMNS: usize>:
+    Transposable + Fillable<T> + Grid2D<T, ROWS, COLUMNS>
+{
+}
 
 #[derive(Debug, Copy, Clone)]
 pub struct Matrix<T, const ROWS: usize, const COLUMNS: usize>
@@ -30,7 +36,9 @@ where
     }
 
     pub fn pow(matrix: Self, exponent: usize) -> Self
-    where Self : Mul<Self, Output = Self> {
+    where
+        Self: Mul<Self, Output = Self>,
+    {
         let mut current = matrix;
 
         (0..exponent - 1).for_each(|_: usize| {
@@ -66,8 +74,6 @@ impl<T, const ROWS: usize, const COLUMNS: usize> Grid2D<T, ROWS, COLUMNS>
 where
     T: Clone + Copy + Num,
 {
-    type TransposeType = Matrix<T, COLUMNS, ROWS>;
-
     fn column(&self, index: usize) -> Vector<T, ROWS> {
         let mut output = [zero::<T>(); ROWS];
 
@@ -107,6 +113,13 @@ where
 
         Matrix::new(components)
     }
+}
+
+impl<T, const ROWS: usize, const COLUMNS: usize> Transposable for Matrix<T, ROWS, COLUMNS>
+where
+    T: Clone + Copy + Num,
+{
+    type TransposeType = Matrix<T, COLUMNS, ROWS>;
 
     fn transpose(&self) -> Self::TransposeType {
         let mut output = Matrix::<T, COLUMNS, ROWS>::zero();
@@ -123,9 +136,8 @@ where
 
 impl<T, const ROWS: usize, const COLUMNS: usize> Fillable<T> for Matrix<T, ROWS, COLUMNS>
 where
-    T: Clone + Copy + Num
+    T: Clone + Copy + Num,
 {
-
     fn fill(value: T) -> Self {
         let mut components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
 
@@ -141,7 +153,7 @@ where
 
 impl<T, const ROWS: usize, const COLUMNS: usize> Zero for Matrix<T, ROWS, COLUMNS>
 where
-    T: Clone + Copy + Num
+    T: Clone + Copy + Num,
 {
     fn zero() -> Self {
         let components: [[T; COLUMNS]; ROWS] = [[zero::<T>(); COLUMNS]; ROWS];
@@ -154,12 +166,12 @@ where
 
     fn is_zero(&self) -> bool
     where
-        T: PartialEq + num::Zero
+        T: PartialEq + num::Zero,
     {
         for y in 0..ROWS {
             for x in 0..COLUMNS {
                 if self.components[y][x] != zero() {
-                    return false
+                    return false;
                 }
             }
         }
@@ -238,10 +250,7 @@ where
 {
     type Output = Matrix<T, LHS_ROWS, RHS_COLUMN>;
 
-    fn mul(
-        self,
-        rhs: Matrix<T, LHS_COLUMNS, RHS_COLUMN>,
-    ) -> Matrix<T, LHS_ROWS, RHS_COLUMN> {
+    fn mul(self, rhs: Matrix<T, LHS_COLUMNS, RHS_COLUMN>) -> Matrix<T, LHS_ROWS, RHS_COLUMN> {
         let mut matrix = Matrix::<T, LHS_ROWS, RHS_COLUMN>::zero();
 
         for lhs_row in 0..LHS_ROWS {

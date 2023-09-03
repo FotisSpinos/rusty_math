@@ -15,9 +15,6 @@ for DiagonalMatrix<ComponentType, SIZE>
 where
     ComponentType: Clone + Copy + Num,
 {
-
-    type TransposeType = Self;
-
     fn column(&self, index: usize) -> Vector<ComponentType, SIZE> {
         todo!()
     }
@@ -45,10 +42,6 @@ where
     fn identity() -> Self {
         let components = [one::<ComponentType>(); SIZE];
         DiagonalMatrix::new(components)
-    }
-
-    fn transpose(&self) -> Self::TransposeType {
-        todo!()
     }
 }
 
