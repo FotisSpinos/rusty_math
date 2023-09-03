@@ -1,7 +1,3 @@
-pub type SquareMatrix<ComponentType, const SIZE: usize> = Matrix<ComponentType, SIZE, SIZE>;
-pub type Matrix3x3<ComponentType> = SquareMatrix<ComponentType, 3>;
-pub type Matrix4x4<ComponentType> = SquareMatrix<ComponentType, 4>;
-
 use num::{one, zero, Num, Zero};
 
 use std::{
@@ -11,7 +7,12 @@ use std::{
     },
 };
 
-use crate::{traits::{Grid2D, Fillable, Transposable}, vector::vector::Vector};
+use crate::{traits::{Fillable, Transposable, Grid2D}, vector::vector::Vector};
+
+pub type SquareMatrix<ComponentType, const SIZE: usize> = Matrix<ComponentType, SIZE, SIZE>;
+pub type Matrix2x2<ComponentType> = SquareMatrix<ComponentType, 2>;
+pub type Matrix3x3<ComponentType> = SquareMatrix<ComponentType, 3>;
+pub type Matrix4x4<ComponentType> = SquareMatrix<ComponentType, 4>;
 
 trait MatrixTrait<ComponentType, const ROWS: usize, const COLUMNS: usize> : Transposable + Fillable<ComponentType> + Grid2D<ComponentType, ROWS, COLUMNS> {
 

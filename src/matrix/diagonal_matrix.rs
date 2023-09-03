@@ -2,7 +2,7 @@ use std::ops::{SubAssign, Add, Sub, AddAssign, Mul};
 
 use num::{Num, Zero, one, zero};
 
-use crate::{Vector, traits::{Grid2D, Fillable}};
+use crate::{Vector, traits::{Fillable, Grid2D}};
 
 use super::matrix::Matrix;
 
