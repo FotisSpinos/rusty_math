@@ -7,7 +7,7 @@ use std::{
     },
 };
 
-use crate::{traits::{Fillable, Transposable, Grid2D}, vector::Vector};
+use crate::{traits::{Fillable, Transposable, Grid2D, Identity}, vector::Vector};
 
 pub type SquareMatrix<ComponentType, const SIZE: usize> = Matrix<ComponentType, SIZE, SIZE>;
 pub type Matrix2x2<ComponentType> = SquareMatrix<ComponentType, 2>;
@@ -100,7 +100,13 @@ where
     fn rows(&self) -> usize {
         ROWS
     }
+}
 
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Identity
+for Matrix<ComponentType, ROWS, COLUMNS>
+where
+    ComponentType: Clone + Copy + Num,
+{
     fn identity() -> Self {
         let mut components: [[ComponentType; COLUMNS]; ROWS] = [[zero::<ComponentType>(); COLUMNS]; ROWS];
 

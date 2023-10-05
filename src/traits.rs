@@ -10,6 +10,10 @@ pub trait Transposable {
     fn transpose(&self) -> Self::Output;
 }
 
+pub trait Identity {
+    fn identity() -> Self;
+}
+
 pub trait Grid2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
     fn column(&self, index: usize) -> Vector<ComponentType, ROWS>;
 
@@ -22,6 +26,4 @@ pub trait Grid2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
     fn row(&self, index: usize) -> Vector<ComponentType, COLUMNS>;
 
     fn rows(&self) -> usize;
-
-    fn identity() -> Self;
 }

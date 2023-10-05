@@ -5,5 +5,3 @@ pub mod traits;
 pub use matrix::matrix::*;
 pub use matrix::diagonal_matrix::*;
 pub use vector::*;
-
-use crate::Vector;

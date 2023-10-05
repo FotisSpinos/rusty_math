@@ -2,7 +2,7 @@ use std::ops::{SubAssign, Add, Sub, AddAssign, Mul};
 
 use num::{Num, Zero, one, zero};
 
-use crate::{Vector, traits::{Fillable, Grid2D}};
+use crate::{Vector, traits::{Fillable, Grid2D, Identity}};
 
 use super::matrix::Matrix;
 
@@ -38,7 +38,13 @@ where
     fn rows(&self) -> usize {
         todo!()
     }
+}
 
+impl<ComponentType, const SIZE: usize> Identity
+for DiagonalMatrix<ComponentType, SIZE>
+where
+    ComponentType: Clone + Copy + Num,
+{
     fn identity() -> Self {
         let components = [one::<ComponentType>(); SIZE];
         DiagonalMatrix::new(components)
