@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod vector_tests {
-    use rusty_math::{Vector2Int, Vector2, Vector3, vector::Vector};
+    use rusty_math::{Vector2Int, Vector2, Vector3, Vector};
 
     #[test]
     fn new() {

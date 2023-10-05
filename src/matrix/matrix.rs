@@ -7,7 +7,7 @@ use std::{
     },
 };
 
-use crate::{traits::{Fillable, Transposable, Grid2D, Identity}, vector::Vector};
+use crate::{traits::{Fillable, Transposable, Grid2D, Identity}, vector::vector::Vector};
 
 pub type SquareMatrix<ComponentType, const SIZE: usize> = Matrix<ComponentType, SIZE, SIZE>;
 pub type Matrix2x2<ComponentType> = SquareMatrix<ComponentType, 2>;
