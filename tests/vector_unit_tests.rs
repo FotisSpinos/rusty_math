@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod vector_tests {
-    use rusty_math::{Vector2Int, Vector2, Vector3, Vector};
+    use rusty_math::{Vector2Int, Vector2, Vector3, Vector, traits::Grid2D};
 
     #[test]
     fn new() {
@@ -142,5 +142,17 @@ mod vector_tests {
         assert_eq!(vector[0], 0.0);
         assert_eq!(vector[1], 0.0);
         assert_eq!(vector[2], 0.0);
+    }
+
+    #[test]
+    fn as_column_vector() {
+        let vector = Vector3::new([1.0, 2.0, 3.0]);
+        let matrix = vector.as_column_vector();
+        assert_eq!(matrix.rows(), 3);
+        assert_eq!(matrix.columns(), 1);
+
+        assert_eq!(matrix.components[0][0], 1.0);
+        assert_eq!(matrix.components[1][0], 2.0);
+        assert_eq!(matrix.components[2][0], 3.0);
     }
 }

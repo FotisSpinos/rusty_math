@@ -1,6 +1,8 @@
 use num::{one, traits::Pow, zero, Num, Zero};
 use std::ops::{Add, AddAssign, Sub, SubAssign, Div, DivAssign, Mul, MulAssign, Index, IndexMut};
 
+use crate::{Matrix, traits::Fillable};
+
 pub type Vector2 = Vector<f32, 2>;
 pub type Vector3 = Vector<f32, 3>;
 pub type Vector4 = Vector<f32, 4>;
@@ -72,6 +74,18 @@ impl<ComponentType, const SIZE: usize> Vector<ComponentType, SIZE> {
             + Add<Vector<ComponentType, SIZE>, Output = Vector<ComponentType, SIZE>>,
     {
         y + (x * a)
+    }
+
+    pub fn as_column_vector(self) -> Matrix<ComponentType, SIZE, 1>
+    where
+        ComponentType: Clone + Copy + Zero,
+        Matrix::<ComponentType, SIZE, 1>: Fillable<ComponentType> {
+            let mut result = Matrix::<ComponentType, SIZE, 1>::fill(ComponentType::zero());
+            for i in 0..SIZE {
+                result.components[i][0] = self.components.clone()[i];
+            }
+
+            result
     }
 }
 
@@ -206,5 +220,4 @@ impl<ComponentType, const SIZE: usize> IndexMut<usize> for Vector<ComponentType,
     fn index_mut(&mut self, index: usize) -> &mut ComponentType {
         &mut self.components[index]
     }
-
 }
