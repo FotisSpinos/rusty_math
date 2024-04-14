@@ -1,2 +1,4 @@
-# rusty_math
-A maths library written in rust
+# Rusty math
+
+## Overview
+Rusty math is a general purposed linear algebra library written in the Rust programming language.
