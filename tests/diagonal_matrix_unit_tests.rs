@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod diagonal_matrix_tests {
-    use rusty_math::{traits::Grid2D, DiagonalMatrix};
+    use rusty_math::{traits::{Grid2D, Identity}, DiagonalMatrix, Matrix3x3};
 
     #[test]
     pub fn new() {
@@ -47,5 +47,27 @@ mod diagonal_matrix_tests {
         let matrix = DiagonalMatrix::new(diagonals);
 
         assert_eq!(matrix.diagonal_components, diagonals);
+    }
+
+    #[test]
+    fn matrix_mul() {
+        let diagonal_matrix = DiagonalMatrix::new([2, 5, 4]);
+        let matrix = Matrix3x3::identity();
+        let result = diagonal_matrix * matrix;
+
+        assert_eq!(result[0], [2, 0, 0]);
+        assert_eq!(result[1], [0, 5, 0]);
+        assert_eq!(result[2], [0, 0, 4]);
+    }
+
+    #[test]
+    fn diagonal_matrix_mul() {
+        let lhs = DiagonalMatrix::new([2, 4, 6]);
+        let rhs = DiagonalMatrix::new([2, 2, 2]);
+        let result = lhs * rhs;
+
+        assert_eq!(result[0], 4);
+        assert_eq!(result[1], 8);
+        assert_eq!(result[2], 12);
     }
 }
