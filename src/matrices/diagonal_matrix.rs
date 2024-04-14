@@ -24,7 +24,7 @@ where
         SIZE
     }
 
-    fn len(&self) -> usize {
+    fn count(&self) -> usize {
         SIZE * SIZE
     }
 }
@@ -91,7 +91,7 @@ where
     type Output = Matrix<T, SIZE, SIZE>;
 
     fn add(self, rhs: Self::Output) -> Self::Output {
-        let mut output = rhs.clone();
+        let mut output = rhs;
 
         for i in 0..SIZE {
             output.components[i][i] = output.components[i][i] + self.diagonal_components[i];
@@ -173,7 +173,7 @@ where
     type Output = Matrix<T, SIZE, SIZE>;
 
     fn sub(self, rhs: Self::Output) -> Self::Output {
-        let mut output = rhs.clone();
+        let mut output = rhs;
 
         for i in 0..SIZE {
             output.components[i][i] = output.components[i][i] - self.diagonal_components[i];

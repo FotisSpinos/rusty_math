@@ -65,7 +65,7 @@ mod matrix_tests {
     #[test]
     fn len() {
         let matrix = Matrix::<usize, 4, 4>::fill(0);
-        assert_eq!(matrix.len(), 16);
+        assert_eq!(matrix.count(), 16);
     }
 
     #[test]
@@ -292,5 +292,17 @@ mod matrix_tests {
         let matrix = Matrix4x4::<usize>::identity();
         assert_eq!(matrix.rows(), 4);
         assert_eq!(matrix.columns(), 4);
+    }
+
+    #[test]
+    #[should_panic]
+    fn matrix_zero_columns() {
+        Matrix::<usize, 1, 0>::identity();
+    }
+
+    #[test]
+    #[should_panic]
+    fn matrix_zero_rows() {
+        Matrix::<usize, 0, 1>::identity();
     }
 }

@@ -1,7 +1,7 @@
-pub mod matrix;
-pub mod vector;
+pub mod matrices;
+pub mod vectors;
 pub mod traits;
 
-pub use matrix::matrix::*;
-pub use matrix::diagonal_matrix::*;
-pub use vector::vector::*;
+pub use matrices::matrix::*;
+pub use matrices::diagonal_matrix::*;
+pub use vectors::vector::*;

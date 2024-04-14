@@ -15,7 +15,7 @@ pub trait Identity {
 pub trait Grid2D<ComponentType, const ROWS: usize, const COLUMNS: usize> {
     fn columns(&self) -> usize;
 
-    fn len(&self) -> usize;
+    fn count(&self) -> usize;
 
     fn rows(&self) -> usize;
 }

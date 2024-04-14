@@ -1,4 +1,5 @@
 use num::{one, traits::Pow, zero, Num, Zero};
+use core::panic;
 use std::ops::{Add, AddAssign, Sub, SubAssign, Div, DivAssign, Mul, MulAssign, Index, IndexMut};
 
 use crate::{Matrix, traits::Fillable};
@@ -18,6 +19,9 @@ pub struct Vector<ComponentType, const SIZE: usize> {
 
 impl<ComponentType, const SIZE: usize> Vector<ComponentType, SIZE> {
     pub fn new(components: [ComponentType; SIZE]) -> Self {
+        if SIZE == 0 {
+            panic!("Vector size cannot be zero.")
+        }
         Vector::<ComponentType, SIZE> { components }
     }
 
@@ -189,7 +193,7 @@ where
     ComponentType: Div<Output = ComponentType> + Zero + Copy,
 {
     fn div_assign(&mut self, rhs: ComponentType) {
-        self.components = (self.clone() / rhs).components
+        self.components = (*self / rhs).components
     }
 }
 

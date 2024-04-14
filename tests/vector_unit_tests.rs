@@ -155,4 +155,10 @@ mod vector_tests {
         assert_eq!(matrix.components[1][0], 2.0);
         assert_eq!(matrix.components[2][0], 3.0);
     }
+
+    #[test]
+    #[should_panic]
+    fn zero_size() {
+        Vector::<usize, 0>::new([]);
+    }
 }

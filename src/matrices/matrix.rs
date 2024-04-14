@@ -7,7 +7,7 @@ use std::{
     },
 };
 
-use crate::{traits::{Fillable, Transposable, Grid2D, Identity}, vector::vector::Vector};
+use crate::{traits::{Fillable, Transposable, Grid2D, Identity}, vectors::vector::Vector};
 
 pub type SquareMatrix<ComponentType, const SIZE: usize> = Matrix<ComponentType, SIZE, SIZE>;
 pub type Matrix2x2<ComponentType> = SquareMatrix<ComponentType, 2>;
@@ -31,6 +31,14 @@ where
     ComponentType: Clone + Copy + Zero,
 {
     pub fn new(components: [[ComponentType; COLUMNS]; ROWS]) -> Self {
+        if COLUMNS == 0 {
+            panic!("Matrices cannot have zero columns.");
+        }
+
+        if ROWS == 0 {
+            panic!("Matrices cannot have zero rows.");
+        }
+
         Matrix::<ComponentType, ROWS, COLUMNS> { components }
     }
 
@@ -94,7 +102,7 @@ where
         COLUMNS
     }
 
-    fn len(&self) -> usize {
+    fn count(&self) -> usize {
         self.rows() * self.columns()
     }
 
