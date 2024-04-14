@@ -1,11 +1,12 @@
-use std::ops::{SubAssign, Add, Sub, AddAssign, Mul};
+use std::ops::{Add, AddAssign, Mul, Sub, SubAssign};
 
 use num::{Num, Zero, one, zero};
 
-use crate::{traits::{Fillable, Grid2D, Identity}, vector::vector::Vector};
+use crate::traits::{Fillable, Grid2D, Identity};
 
 use super::matrix::Matrix;
 
+#[derive(Debug, Copy, Clone)]
 pub struct DiagonalMatrix<T, const SIZE: usize> {
     pub diagonal_components: [T; SIZE],
 }
@@ -15,28 +16,16 @@ for DiagonalMatrix<ComponentType, SIZE>
 where
     ComponentType: Clone + Copy + Num,
 {
-    fn column(&self, index: usize) -> Vector<ComponentType, SIZE> {
-        todo!()
+    fn rows(&self) -> usize {
+        SIZE
     }
 
     fn columns(&self) -> usize {
         SIZE
     }
 
-    fn components(&self) -> [[ComponentType; SIZE]; SIZE] {
-        todo!()
-    }
-
     fn len(&self) -> usize {
         SIZE * SIZE
-    }
-
-    fn row(&self, index: usize) -> Vector<ComponentType, SIZE> {
-        todo!()
-    }
-
-    fn rows(&self) -> usize {
-        todo!()
     }
 }
 

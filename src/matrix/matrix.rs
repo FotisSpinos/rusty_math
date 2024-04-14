@@ -28,7 +28,7 @@ where
 
 impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Matrix<ComponentType, ROWS, COLUMNS>
 where
-    ComponentType: Clone + Copy,
+    ComponentType: Clone + Copy + Zero,
 {
     pub fn new(components: [[ComponentType; COLUMNS]; ROWS]) -> Self {
         Matrix::<ComponentType, ROWS, COLUMNS> { components }
@@ -64,14 +64,16 @@ where
 
         result
     }
-}
 
-impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Grid2D<ComponentType, ROWS, COLUMNS>
-    for Matrix<ComponentType, ROWS, COLUMNS>
-where
-    ComponentType: Clone + Copy + Num,
-{
-    fn column(&self, index: usize) -> Vector<ComponentType, ROWS> {
+    pub fn components(&self) -> [[ComponentType; COLUMNS]; ROWS] {
+        self.components
+    }
+
+    pub fn row(&self, index: usize) -> Vector<ComponentType, COLUMNS> {
+        Vector::new(self.components[index])
+    }
+
+    pub fn column(&self, index: usize) -> Vector<ComponentType, ROWS> {
         let mut output = [zero::<ComponentType>(); ROWS];
 
         for i in 0..ROWS {
@@ -81,20 +83,19 @@ where
         Vector::<ComponentType, ROWS>::new(output)
     }
 
+}
+
+impl<ComponentType, const ROWS: usize, const COLUMNS: usize> Grid2D<ComponentType, ROWS, COLUMNS>
+    for Matrix<ComponentType, ROWS, COLUMNS>
+where
+    ComponentType: Clone + Copy + Num,
+{
     fn columns(&self) -> usize {
         COLUMNS
     }
 
-    fn components(&self) -> [[ComponentType; COLUMNS]; ROWS] {
-        self.components
-    }
-
     fn len(&self) -> usize {
         self.rows() * self.columns()
-    }
-
-    fn row(&self, index: usize) -> Vector<ComponentType, COLUMNS> {
-        Vector::new(self.components[index])
     }
 
     fn rows(&self) -> usize {

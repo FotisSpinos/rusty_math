@@ -31,6 +31,15 @@ mod matrix_tests {
     }
 
     #[test]
+    pub fn copy() {
+        let components = [[1, 2, 3], [4, 5, 6]];
+        let matrix = Matrix::new(components);
+        let copy = matrix;
+
+        assert_eq!(matrix, copy);
+    }
+
+    #[test]
     fn column() {
         let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
 
