@@ -82,7 +82,7 @@ impl<ComponentType, const SIZE: usize> Vector<ComponentType, SIZE> {
         Matrix::<ComponentType, SIZE, 1>: Fillable<ComponentType> {
             let mut result = Matrix::<ComponentType, SIZE, 1>::fill(ComponentType::zero());
             for i in 0..SIZE {
-                result.components[i][0] = self.components.clone()[i];
+                result.components[i][0] = self.components[i];
             }
 
             result
@@ -163,7 +163,7 @@ where
     ComponentType: Mul<Output = ComponentType> + Zero + Copy,
 {
     fn mul_assign(&mut self, rhs: ComponentType) {
-        self.components = (self.clone() * rhs).components
+        self.components = (*self * rhs).components
     }
 }
 
@@ -199,10 +199,6 @@ where
 {
     fn eq(&self, other: &Self) -> bool {
         self.components == other.components
-    }
-
-    fn ne(&self, other: &Self) -> bool {
-        !self.eq(other)
     }
 }
 
