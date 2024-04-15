@@ -84,8 +84,8 @@ where
     pub fn column(&self, index: usize) -> Vector<ComponentType, ROWS> {
         let mut output = [zero::<ComponentType>(); ROWS];
 
-        for i in 0..ROWS {
-            output[i] = self.components[i][index];
+        for (i, component) in output.iter_mut().enumerate().take(ROWS) {
+            *component = self.components[i][index];
         }
 
         Vector::<ComponentType, ROWS>::new(output)
@@ -119,8 +119,8 @@ where
     fn identity() -> Self {
         let mut components: [[ComponentType; COLUMNS]; ROWS] = [[zero::<ComponentType>(); COLUMNS]; ROWS];
 
-        for row in 0..ROWS {
-            components[row][row] = one::<ComponentType>();
+        for (row, row_data) in components.iter_mut().enumerate().take(ROWS) {
+            row_data[row] = one::<ComponentType>();
         }
 
         Matrix::new(components)

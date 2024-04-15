@@ -25,7 +25,7 @@ impl<ComponentType, const SIZE: usize> Vector<ComponentType, SIZE> {
         Vector::<ComponentType, SIZE> { components }
     }
 
-    pub fn len(&self) -> usize {
+    pub fn count(&self) -> usize {
         self.components.len()
     }
 
@@ -102,8 +102,8 @@ where
     fn add(self, rhs: Self) -> Self::Output {
         let mut components = [zero::<ComponentType>(); SIZE];
 
-        for i in 0..SIZE {
-            components[i] = self.components[i] + rhs.components[i];
+        for (i, component) in components.iter_mut().enumerate().take(SIZE) {
+            *component = self.components[i] + rhs.components[i];
         }
 
         Vector::<ComponentType, SIZE> { components }
@@ -128,8 +128,8 @@ where
     fn sub(self, rhs: Self) -> Self::Output {
         let mut components = [zero::<ComponentType>(); SIZE];
 
-        for i in 0..SIZE {
-            components[i] = self.components[i] - rhs.components[i];
+        for (i, item) in components.iter_mut().enumerate().take(SIZE) {
+            *item = self.components[i] - rhs.components[i];
         }
 
         Vector::<ComponentType, SIZE>::new(components)
@@ -154,8 +154,8 @@ where
     fn mul(self, rhs: ComponentType) -> Self::Output {
         let mut components = [zero::<ComponentType>(); SIZE];
 
-        for i in 0..SIZE {
-            components[i] = self.components[i] * rhs;
+        for (i, item) in components.iter_mut().enumerate().take(SIZE) {
+            *item = self.components[i] * rhs;
         }
 
         Vector::<ComponentType, SIZE>::new(components)
@@ -180,8 +180,8 @@ where
     fn div(self, rhs: ComponentType) -> Self::Output {
         let mut components = [zero::<ComponentType>(); SIZE];
 
-        for i in 0..SIZE {
-            components[i] = self.components[i] / rhs;
+        for (i, item) in components.iter_mut().enumerate().take(SIZE) {
+            *item = self.components[i] / rhs;
         }
 
         Vector::<ComponentType, SIZE>::new(components)

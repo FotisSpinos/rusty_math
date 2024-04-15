@@ -77,8 +77,8 @@ where
     fn add(self, rhs: Self) -> Self::Output {
         let mut components = [one::<ComponentType>(); SIZE];
 
-        for i in 0..SIZE {
-            components[i] = self.diagonal_components[i] + rhs.diagonal_components[i];
+        for (i, component) in components.iter_mut().enumerate().take(SIZE) {
+            *component = self.diagonal_components[i] + rhs.diagonal_components[i];
         }
 
         DiagonalMatrix::new(components)
@@ -110,7 +110,7 @@ where
     type Output = DiagonalMatrix<ComponentType, SIZE>;
 
     fn mul(self, rhs: ComponentType) -> Self::Output {
-        let mut output = self.clone();
+        let mut output = self;
 
         for i in 0..SIZE {
             output.diagonal_components[i] = output.diagonal_components[i] * rhs;
@@ -128,7 +128,7 @@ where
     type Output = DiagonalMatrix<ComponentType, SIZE>;
 
     fn mul(self, rhs: DiagonalMatrix<ComponentType, SIZE>) -> Self::Output {
-        let mut output = self.clone();
+        let mut output = self;
 
         for i in 0..SIZE {
             output.diagonal_components[i] = output.diagonal_components[i] * rhs.diagonal_components[i];
@@ -177,8 +177,8 @@ where
     fn sub(self, rhs: Self) -> Self::Output {
         let mut components = [one::<ComponentType>(); SIZE];
 
-        for i in 0..SIZE {
-            components[i] = self.diagonal_components[i] - rhs.diagonal_components[i];
+        for (i, component) in components.iter_mut().enumerate().take(SIZE) {
+            *component = self.diagonal_components[i] - rhs.diagonal_components[i];
         }
 
         DiagonalMatrix::new(components)

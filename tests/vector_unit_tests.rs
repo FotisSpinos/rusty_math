@@ -14,7 +14,7 @@ mod vector_tests {
         let components = [1, 2, 3];
         let vector = Vector::new([1, 2, 3]);
 
-        assert_eq!(vector.len(), components.len());
+        assert_eq!(vector.count(), components.len());
     }
 
     #[test]
