@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod vector_tests {
-    use rusty_math::{Vector2Int, Vector2, Vector3, Vector, traits::Grid2D};
+    use rusty_math::{traits::Grid2D, Vector, Vector2, Vector2Int, Vector3};
 
     #[test]
     fn new() {
@@ -29,7 +29,7 @@ mod vector_tests {
     #[test]
     fn unit_bases() {
         let vector = Vector::<usize, 3>::unit_bases(1);
-        assert_eq!(vector.components, [0,1,0]);
+        assert_eq!(vector.components, [0, 1, 0]);
     }
 
     #[test]
@@ -45,7 +45,10 @@ mod vector_tests {
         let vector = Vector2::new([1.0, 1.0]);
         let unit_vector = vector.to_unit();
 
-        assert_eq!(unit_vector.components, [1.0 / f32::sqrt(2.0), 1.0 / f32::sqrt(2.0)]);
+        assert_eq!(
+            unit_vector.components,
+            [1.0 / f32::sqrt(2.0), 1.0 / f32::sqrt(2.0)]
+        );
     }
 
     #[test]

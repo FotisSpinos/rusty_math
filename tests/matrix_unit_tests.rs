@@ -1,7 +1,10 @@
 #[cfg(test)]
 mod matrix_tests {
     use num::Zero;
-    use rusty_math::{Matrix, Matrix3x3, Matrix4x4, traits::{Grid2D, Identity, Fillable, Transposable}, Vector};
+    use rusty_math::{
+        traits::{Fillable, Grid2D, Identity, Transposable},
+        Matrix, Matrix3x3, Matrix4x4, Vector,
+    };
 
     #[test]
     pub fn new() {
@@ -48,7 +51,8 @@ mod matrix_tests {
         assert_eq!(matrix.column(2), Vector::new([3, 6]));
     }
 
-    #[test] fn columns() {
+    #[test]
+    fn columns() {
         let matrix = Matrix::<usize, 2, 3>::new([[1, 2, 3], [4, 5, 6]]);
 
         assert_eq!(matrix.columns(), 3);

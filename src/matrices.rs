@@ -1,2 +1,2 @@
-pub mod matrix;
 pub mod diagonal_matrix;
+pub mod matrix;

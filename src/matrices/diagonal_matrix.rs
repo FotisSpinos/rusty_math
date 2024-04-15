@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Index, Mul, Sub, SubAssign};
 
-use num::{Num, Zero, one, zero};
+use num::{one, zero, Num, Zero};
 
 use crate::traits::{Fillable, Grid2D, Identity};
 use crate::vectors::vector::Vector;
@@ -13,7 +13,7 @@ pub struct DiagonalMatrix<ComponentType, const SIZE: usize> {
 }
 
 impl<ComponentType, const SIZE: usize> Grid2D<ComponentType, SIZE, SIZE>
-for DiagonalMatrix<ComponentType, SIZE>
+    for DiagonalMatrix<ComponentType, SIZE>
 where
     ComponentType: Clone + Copy + Num,
 {
@@ -30,8 +30,7 @@ where
     }
 }
 
-impl<ComponentType, const SIZE: usize> Identity
-for DiagonalMatrix<ComponentType, SIZE>
+impl<ComponentType, const SIZE: usize> Identity for DiagonalMatrix<ComponentType, SIZE>
 where
     ComponentType: Clone + Copy + Num,
 {
@@ -41,21 +40,25 @@ where
     }
 }
 
-impl<ComponentType, const SIZE: usize> Fillable<ComponentType> for DiagonalMatrix<ComponentType, SIZE>
-where ComponentType: Zero + std::marker::Copy {
-
+impl<ComponentType, const SIZE: usize> Fillable<ComponentType>
+    for DiagonalMatrix<ComponentType, SIZE>
+where
+    ComponentType: Zero + std::marker::Copy,
+{
     fn fill(value: ComponentType) -> Self {
         let components = [zero(); SIZE];
-        components.into_iter().for_each(|mut _component: ComponentType| {
-            _component = value
-        });
+        components
+            .into_iter()
+            .for_each(|mut _component: ComponentType| _component = value);
         DiagonalMatrix::new(components)
     }
 }
 
 impl<ComponentType, const SIZE: usize> DiagonalMatrix<ComponentType, SIZE> {
     pub fn new(components: [ComponentType; SIZE]) -> Self {
-        DiagonalMatrix { diagonal_components: components }
+        DiagonalMatrix {
+            diagonal_components: components,
+        }
     }
 
     pub fn fill(mut self, value: ComponentType)
@@ -85,7 +88,8 @@ where
     }
 }
 
-impl<ComponentType, const SIZE: usize> Add<Matrix<ComponentType, SIZE, SIZE>> for DiagonalMatrix<ComponentType, SIZE>
+impl<ComponentType, const SIZE: usize> Add<Matrix<ComponentType, SIZE, SIZE>>
+    for DiagonalMatrix<ComponentType, SIZE>
 where
     ComponentType: Num + Clone + Copy + Add,
 {
@@ -120,7 +124,8 @@ where
     }
 }
 
-impl<ComponentType, const SIZE: usize> Mul<DiagonalMatrix<ComponentType, SIZE>> for DiagonalMatrix<ComponentType, SIZE>
+impl<ComponentType, const SIZE: usize> Mul<DiagonalMatrix<ComponentType, SIZE>>
+    for DiagonalMatrix<ComponentType, SIZE>
 where
     ComponentType: Num + Clone + Copy,
     DiagonalMatrix<ComponentType, SIZE>: Clone,
@@ -131,20 +136,22 @@ where
         let mut output = self;
 
         for i in 0..SIZE {
-            output.diagonal_components[i] = output.diagonal_components[i] * rhs.diagonal_components[i];
+            output.diagonal_components[i] =
+                output.diagonal_components[i] * rhs.diagonal_components[i];
         }
 
         output
     }
 }
 
-impl<ComponentType, const SIZE: usize> Mul<Matrix<ComponentType, SIZE, SIZE>> for DiagonalMatrix<ComponentType, SIZE>
+impl<ComponentType, const SIZE: usize> Mul<Matrix<ComponentType, SIZE, SIZE>>
+    for DiagonalMatrix<ComponentType, SIZE>
 where
     ComponentType: Num + Clone + Copy,
     DiagonalMatrix<ComponentType, SIZE>: Clone,
 {
     type Output = Matrix<ComponentType, SIZE, SIZE>;
-    
+
     fn mul(self, rhs: Matrix<ComponentType, SIZE, SIZE>) -> Self::Output {
         let mut output = rhs;
 
@@ -185,7 +192,8 @@ where
     }
 }
 
-impl<ComponentType, const SIZE: usize> Sub<Matrix<ComponentType, SIZE, SIZE>> for DiagonalMatrix<ComponentType, SIZE>
+impl<ComponentType, const SIZE: usize> Sub<Matrix<ComponentType, SIZE, SIZE>>
+    for DiagonalMatrix<ComponentType, SIZE>
 where
     ComponentType: Num + Clone + Copy + Add,
 {

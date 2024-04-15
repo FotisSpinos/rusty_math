@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod diagonal_matrix_tests {
-    use rusty_math::{traits::{Grid2D, Identity}, DiagonalMatrix, Matrix3x3};
+    use rusty_math::{
+        traits::{Grid2D, Identity},
+        DiagonalMatrix, Matrix3x3,
+    };
 
     #[test]
     pub fn new() {

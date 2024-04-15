@@ -1,8 +1,8 @@
-use num::{one, traits::Pow, zero, Num, Zero};
 use core::panic;
-use std::ops::{Add, AddAssign, Sub, SubAssign, Div, DivAssign, Mul, MulAssign, Index, IndexMut};
+use num::{one, traits::Pow, zero, Num, Zero};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
-use crate::{Matrix, traits::Fillable};
+use crate::{traits::Fillable, Matrix};
 
 pub type Vector2 = Vector<f32, 2>;
 pub type Vector3 = Vector<f32, 3>;
@@ -72,7 +72,11 @@ impl<ComponentType, const SIZE: usize> Vector<ComponentType, SIZE> {
         self / self.magnitude()
     }
 
-    pub fn axpy(a: ComponentType, x: Vector<ComponentType, SIZE>, y: Vector<ComponentType, SIZE>) -> Self
+    pub fn axpy(
+        a: ComponentType,
+        x: Vector<ComponentType, SIZE>,
+        y: Vector<ComponentType, SIZE>,
+    ) -> Self
     where
         Vector<ComponentType, SIZE>: Mul<ComponentType, Output = Vector<ComponentType, SIZE>>
             + Add<Vector<ComponentType, SIZE>, Output = Vector<ComponentType, SIZE>>,
@@ -83,17 +87,19 @@ impl<ComponentType, const SIZE: usize> Vector<ComponentType, SIZE> {
     pub fn as_column_vector(self) -> Matrix<ComponentType, SIZE, 1>
     where
         ComponentType: Clone + Copy + Zero,
-        Matrix::<ComponentType, SIZE, 1>: Fillable<ComponentType> {
-            let mut result = Matrix::<ComponentType, SIZE, 1>::fill(ComponentType::zero());
-            for i in 0..SIZE {
-                result.components[i][0] = self.components[i];
-            }
+        Matrix<ComponentType, SIZE, 1>: Fillable<ComponentType>,
+    {
+        let mut result = Matrix::<ComponentType, SIZE, 1>::fill(ComponentType::zero());
+        for i in 0..SIZE {
+            result.components[i][0] = self.components[i];
+        }
 
-            result
+        result
     }
 }
 
-impl<ComponentType, const SIZE: usize> Add<Vector<ComponentType, SIZE>> for Vector<ComponentType, SIZE>
+impl<ComponentType, const SIZE: usize> Add<Vector<ComponentType, SIZE>>
+    for Vector<ComponentType, SIZE>
 where
     ComponentType: Add<Output = ComponentType> + Zero + Copy,
 {
@@ -112,14 +118,15 @@ where
 
 impl<ComponentType, const SIZE: usize> AddAssign for Vector<ComponentType, SIZE>
 where
-    Vector<ComponentType, SIZE>: Add<Output = Vector<ComponentType, SIZE>> + Clone
+    Vector<ComponentType, SIZE>: Add<Output = Vector<ComponentType, SIZE>> + Clone,
 {
     fn add_assign(&mut self, rhs: Self) {
         self.components = (self.clone() + rhs).components
     }
 }
 
-impl<ComponentType, const SIZE: usize> Sub<Vector<ComponentType, SIZE>> for Vector<ComponentType, SIZE>
+impl<ComponentType, const SIZE: usize> Sub<Vector<ComponentType, SIZE>>
+    for Vector<ComponentType, SIZE>
 where
     ComponentType: Sub<Output = ComponentType> + Zero + Copy,
 {
@@ -136,9 +143,10 @@ where
     }
 }
 
-impl<ComponentType, const SIZE: usize> SubAssign<Vector<ComponentType, SIZE>> for Vector<ComponentType, SIZE>
-where 
-    Vector<ComponentType, SIZE>: Sub<Output = Vector<ComponentType, SIZE>> + Clone
+impl<ComponentType, const SIZE: usize> SubAssign<Vector<ComponentType, SIZE>>
+    for Vector<ComponentType, SIZE>
+where
+    Vector<ComponentType, SIZE>: Sub<Output = Vector<ComponentType, SIZE>> + Clone,
 {
     fn sub_assign(&mut self, rhs: Vector<ComponentType, SIZE>) {
         self.components = (self.clone() - rhs).components
@@ -206,8 +214,7 @@ where
     }
 }
 
-impl<ComponentType, const SIZE: usize> Index<usize> for Vector<ComponentType, SIZE>
-{
+impl<ComponentType, const SIZE: usize> Index<usize> for Vector<ComponentType, SIZE> {
     type Output = ComponentType;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -215,8 +222,7 @@ impl<ComponentType, const SIZE: usize> Index<usize> for Vector<ComponentType, SI
     }
 }
 
-impl<ComponentType, const SIZE: usize> IndexMut<usize> for Vector<ComponentType, SIZE>
-{
+impl<ComponentType, const SIZE: usize> IndexMut<usize> for Vector<ComponentType, SIZE> {
     fn index_mut(&mut self, index: usize) -> &mut ComponentType {
         &mut self.components[index]
     }
